@@ -1,0 +1,79 @@
+body {
+    background-color: rgb(26, 25, 25);
+    color: white;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.inner {
+    width: auto;
+    height: auto;
+    text-align: center;
+    margin-top: 10vh;
+    padding: 10px;
+    background-color: rgb(41, 41, 41);
+}
+
+button {
+    font-size: 1.2rem;
+    background-color: wheat;
+    border-color: black;
+}
+
+#game-type {
+    display: none;
+    margin-top: 10px;
+}
+
+#lobby-config {
+    text-align: left;
+    width: 350px;
+}
+
+.lobby-option {
+    margin-bottom: 10px;
+}
+
+#chat-wrapper {
+    position: relative;
+    width: 350px;
+    margin-top: 20px;
+    background-color: rgb(96, 96, 96);
+}
+
+#chat-content {
+    width: 100%;
+    height: 200px;
+    text-align: left;
+    padding: 2px;
+    font-size: 17px;
+    color: rgb(242, 242, 242);
+}
+
+#chat-input {
+    width: 100%;
+    font-size: 18px;
+}
+
+#chat-send {
+    position: absolute;
+    right: 0;
+}
+
+.chat-msg {
+    margin: 0 3px;
+}
+
+.chat-msg.template-msg {
+    display: none;
+}
+
+.chat-msg-author {
+    font-weight: 600;
+}
