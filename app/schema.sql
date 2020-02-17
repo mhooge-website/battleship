@@ -10,6 +10,14 @@ CREATE TABLE [games] (
     [score_p2] INTEGER DEFAULT(0),
     [active] INTEGER DEFAULT(1)
 );
+CREATE TABLE [ships] (
+    [id] INTEGER PRIMARY KEY,
+    [game_id] NVARCHAR(64) NOT NULL,
+    [x] INTEGER NOT NULL,
+    [y] INTEGER NOT NULL,
+    [owner] INTEGER NOT NULL,
+    [hit] INTEGER DEFAULT(0)
+);
 CREATE TABLE [chat_messages] (
     [id] INTEGER PRIMARY KEY,
     [game_id] NVARCHAR(64) NOT NULL,

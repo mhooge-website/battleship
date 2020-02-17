@@ -9,7 +9,9 @@ function removeLobbySession() {
 
 function updateSetting(setting, value) {
     let lobbyId = getActiveLobby();
-    let obj = { setting: setting, value: value, lobby_id: lobbyId };
+    let cookieData = JSON.parse(getCookieVal("battleship"));
+    let obj = { setting: setting, value: value, lobby_id: lobbyId,
+                hash: cookieData.hash, owner: cookieData.owner };
     socket.emit("setting_changed", JSON.stringify(obj));
 }
 
@@ -33,6 +35,11 @@ function setLoadedSettings(data) {
     document.getElementById("invite-only").checked = data[3] == 0 ? "true" : "false";
 }
 
+function startGame() {
+    updateSetting("status", "ready");
+    window.location.href = "/projects/battleship/game/" + lobbyId;
+}
+
 var lobbyIdInput = document.getElementById("lobby-id");
 let lobbyJson = getCookieVal("battleship");
 
@@ -49,6 +56,9 @@ else if (urlSplit[2] == "pvp") {
     }
 }
 
+socket.on("setup_started", function(lobbyId) {
+    startGame();
+});
 socket.on("invalid_lobby", function(error) {
     alert(error);
 });
@@ -75,4 +85,6 @@ socket.on("lobby_created", function(jsonData) {
     let data = JSON.parse(jsonData);
     lobbyIdInput.textContent = data.id;
     setCookieData(data.id, data.hash, true);
+    document.getElementById("lobby-name").disabled = false;
+    document.getElementById("invite-only").disabled = false;
 });

@@ -10,12 +10,12 @@
 {% block content %}
 <h1>Lobby</h1>
 <div id="lobby-config">
-    <div class="lobby-option">Name: <input id="lobby-name" value="Battleship Lobby" onchange="lobbyNameChanged();"></div>
+    <div class="lobby-option">Name: <input id="lobby-name" value="Battleship Lobby" disabled onchange="lobbyNameChanged();"></div>
     <div class="lobby-option">Lobby ID: <span id="lobby-id">{{ lobby_id }}</span></div>
-    <div class="lobby-option">Invite Only: <input id="invite-only" type="checkbox" checked="true" onchange="checkPublicChanged();"></div>
+    <div class="lobby-option">Invite Only: <input id="invite-only" type="checkbox" checked="true" disabled onchange="checkPublicChanged();"></div>
 </div>
 
-<button id="start-btn" disabled>Start</button>
+<button id="start-btn" onclick="startGame();" disabled>Start</button>
 
 {% include "chat.html" %}
 {% endblock %}

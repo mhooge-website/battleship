@@ -1,7 +1,7 @@
 import json
 from hashlib import md5
 from time import time
-from flask import request
+from flask import redirect
 from flask_socketio import join_room
 from app import web_app
 from app import socket_io
@@ -13,15 +13,15 @@ def other_room(lobby_id, owner):
 def get_room(lobby_id, owner):
     return lobby_id + str(owner)
 
-def encrypt_lobby_id(lobby_id):
-    return md5(bytearray(lobby_id + web_app.secret_key, encoding="UTF-8")).hexdigest()
+def encrypt_lobby_id(lobby_id, owner):
+    return md5(bytearray(lobby_id + str(owner) + web_app.secret_key, encoding="UTF-8")).hexdigest()
 
 @socket_io.on("lobby_pvp")
 def handle_message(message):
     lobby_id = md5(bytearray(str(int(time() * 100)), encoding="UTF-8")).hexdigest()
     try:
         database.create_lobby(lobby_id)
-        encrypted = encrypt_lobby_id(lobby_id)
+        encrypted = encrypt_lobby_id(lobby_id, 1)
         json_data = json.dumps({"id": lobby_id, "hash": encrypted})
         join_room(get_room(lobby_id, 1))
         socket_io.emit("lobby_created", json_data, room=get_room(lobby_id, 1))
@@ -32,7 +32,8 @@ def handle_message(message):
 @socket_io.on("lobby_rejoin")
 def handle_rejoin(json_data):
     data = json.loads(json_data)
-    if encrypt_lobby_id(data["id"]) == data["hash"]:
+    join_room(get_room(data["id"], data["owner"]))
+    if encrypt_lobby_id(data["id"], data["owner"]) == data["hash"]:
         handle_join(data["id"], 1 if data["owner"] else 0)
 
 def handle_join(lobby_id, owner):
@@ -52,7 +53,7 @@ def lobby_full(lobby_id):
     change_setting(json_data)
     handle_join(lobby_id, 0)
     join_room(get_room(lobby_id, 0))
-    encrypted = encrypt_lobby_id(lobby_id)
+    encrypted = encrypt_lobby_id(lobby_id, 0)
     json_data = json.dumps({"id": lobby_id, "hash": encrypted})
     socket_io.emit("lobby_ready_opp", json_data, room=get_room(lobby_id, 0))
     socket_io.emit("lobby_ready_owner", json_data, room=get_room(lobby_id, 1))
@@ -60,8 +61,14 @@ def lobby_full(lobby_id):
 @socket_io.on("setting_changed")
 def change_setting(json_data):
     data = json.loads(json_data)
-    database.change_lobby_setting(data["lobby_id"], data["setting"], data["value"])
-    web_app.logger.info("Updated: " + str(data["setting"]))
+    if encrypt_lobby_id(data["lobby_id"], data["owner"]) == data["hash"]:
+        database.change_lobby_setting(data["lobby_id"], data["setting"], data["value"])
+        web_app.logger.info("Updated: " + str(data["setting"]))
+        if data["setting"] == "status" and data["value"] == "ready":
+            socket_io.emit("setup_started", data["lobby_id"])
+        else:
+            json_dump = json.dumps({"setting": data["setting"], "value": data["value"]})
+            socket_io.emit("setting_changed", json_dump, room=get_room(json_data["lobby_id"], 0))
 
 @socket_io.on("message_sent")
 def handle_chat_message(json_data):

@@ -22,6 +22,12 @@ def join_lobby(lobby_id):
         return render_template("lobby.html", lobby_id=lobby_id)
     return index()
 
+@web_app.route('/game/<lobby_id>')
+def join_game(lobby_id):
+    lobby_data = database.get_lobby_data(lobby_id)
+    if lobby_data is not None and lobby_data[0][2] in ("setup", "underway"):
+        return render_template("game.html", lobby_data[0][1], lobby_data[0][2])
+
 @web_app.route('/search')
 def search_game():
     # Load lobbies.
