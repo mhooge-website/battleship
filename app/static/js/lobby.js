@@ -39,8 +39,8 @@ function setLoadedSettings(data) {
     }
 }
 
-function startGame() {
-    updateSetting("status", "ready");
+function startSetup(lobbyId) {
+    socket.emit("start_setup", lobbyId);
     window.location.href = "/projects/battleship/game/" + lobbyId;
 }
 
@@ -80,7 +80,7 @@ else if (urlSplit[2] == "pvp") {
 }
 
 socket.on("setup_started", function(lobbyId) {
-    startGame();
+    window.location.href = "/projects/battleship/game/" + lobbyId;
 });
 socket.on("invalid_lobby", function(error) {
     alert(error);

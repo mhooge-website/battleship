@@ -71,6 +71,13 @@ def handle_setting_changed(json_data):
         json_dump = json.dumps({"setting": data["setting"], "value": data["value"]})
         socket_io.emit("changed_setting", json_dump, room=get_room(data["lobby_id"], 0))
 
+@socket_io.on("start_setup")
+def handle_start_setup(json_data):
+    data = json.loads(json_data)
+    if encrypt_lobby_id(data["lobby_id"], 1) == data["hash"]:
+        change_setting(data["lobby_id"], "status", "setup")
+        socket_io.emit("setup-started", data["lobby_id"])
+
 @socket_io.on("message_sent")
 def handle_chat_message(json_data):
     data = json.loads(json_data)
