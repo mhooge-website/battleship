@@ -45,7 +45,7 @@ function addToLog(message, author, timestamp=null) {
 
 function addMsgToDB(message, event=false) {
     let cookieJson = JSON.parse(getCookieVal("battleship"));
-    let owner = event ? 2 : cookieJson.owner;
+    let owner = event ? 2+Number.parseInt(cookieJson.owner) : cookieJson.owner;
     let json = JSON.stringify({id: cookieJson.id, msg: message, is_event: event, owner: owner});
     socket.emit("message_sent", json);
 }

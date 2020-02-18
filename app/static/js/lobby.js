@@ -111,8 +111,17 @@ socket.on("lobby_joined", function(jsonData) {
     for (let i = 0; i < data.messages.length; i++) {
         let message = data.messages[i];
 
-        let author = message[1] == 2 ? "Event" : (message[1] == data.owner ? "You" : "Opponent");
-        addToLog(message[0], author, message[2]);
+        let authorFlag = Number.parseInt(message[1]);
+        if (authorFlag < 2) {
+            let author = message[1] == data.owner ? "You" : "Opponent";
+            addToLog(message[0], author, message[2]);
+        }
+        else {
+            let author = message[1] == 2;
+            if (authorFlag - 2 == data.owner) {
+                addToLog(message[0], author, message[2]);
+            }
+        }
     }
 });
 socket.on("lobby_created", function(jsonData) {
