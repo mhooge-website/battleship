@@ -7,12 +7,12 @@ body {
     display: flex;
     align-items: center;
     flex-direction: column;
-    height: 100%;
     width: 100%;
+    height: 100%;
 }
 
 .inner {
-    width: auto;
+    width: 100%;
     height: auto;
     text-align: center;
     margin-top: 10vh;
@@ -41,10 +41,17 @@ button {
 }
 
 #chat-wrapper {
-    position: relative;
-    width: 350px;
     margin-top: 20px;
+    width: 100%;
+    margin-bottom: 165px;
+}
+
+#chat-inner {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
     background-color: rgb(96, 96, 96);
+    margin: auto;
 }
 
 #chat-content {
@@ -80,4 +87,35 @@ button {
 
 .chat-msg-author {
     font-weight: 600;
+}
+
+#game-boards-wrapper {
+    width: 800px;
+    max-width: 95vw;
+    margin: 0 auto;
+}
+
+.game-board {
+    display: inline-block;
+    margin: 10px;
+    width: 45%;
+    min-width: 300px;
+}
+
+.board-disabled button {
+    background-color: gray;
+}
+
+.grid-row {
+    display: inline-block;
+    width: 100%;
+}
+
+.grid-button {
+    background-color: white;
+    width: 8%;
+    height: 8%;
+    max-width: 30px;
+    max-height: 30px;
+    margin: 2px 1px;
 }

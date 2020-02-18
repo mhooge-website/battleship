@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Lobby{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div id="game-setup">
+    <h1>Setup Phase</h1>
+    <div id="game-ships">
+        <button><img class="ship-tiny"></button>
+        <button><img class="ship-small"></button>
+        <button><img class="ship-small"></button>
+        <button><img class="ship-medium"></button>
+        <button><img class="ship-large"></button>
+    </div>
+    <div id="game-boards-wrapper">
+        <div id="game-own-board" class="game-board">
+            {% for y in grid %}
+                <div class="grid-row">
+                {% for x in grid %}
+                    <button class="grid-button">
+    
+                    </button>
+                {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="game-enemy-board" class="game-board board-disabled">
+            {% for y in grid %}
+                <div class="grid-row">
+                {% for x in grid %}
+                    <button class="grid-button" disabled>
+                        
+                    </button>
+                {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% include "chat.html" %}
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}

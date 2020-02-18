@@ -39,9 +39,14 @@ function setLoadedSettings(data) {
     }
 }
 
-function startSetup(lobbyId) {
-    socket.emit("start_setup", lobbyId);
-    window.location.href = "/projects/battleship/game/" + lobbyId;
+function redirectToGame(lobbyId) {
+    window.location.href = window.location.host + "/game/" + lobbyId;
+}
+
+function startSetup() {
+    let data = getCookieVal("battleship");
+    socket.emit("start_setup", data);
+    redirectToGame(JSON.parse(data).id);
 }
 
 function settingUpdated(setting, value) {
@@ -65,6 +70,7 @@ else if (urlSplit[2] == "pvp") {
         else {
             socket.on("connect", function() {
                 socket.emit("lobby_pvp", "yes");
+                socket.off("connect");
             });
         }
     }
@@ -74,13 +80,13 @@ else if (urlSplit[2] == "pvp") {
         else {
             socket.on("connect", function() {
                 socket.emit("lobby_full", urlSplit[3]);
+                socket.off("connect");
             });
         }
     }
 }
-
 socket.on("setup_started", function(lobbyId) {
-    window.location.href = "/projects/battleship/game/" + lobbyId;
+    redirectToGame(lobbyId);
 });
 socket.on("invalid_lobby", function(error) {
     alert(error);
@@ -107,19 +113,23 @@ socket.on("lobby_ready_owner", function(msg) {
 });
 socket.on("lobby_joined", function(jsonData) {
     let data = JSON.parse(jsonData);
-    setLoadedSettings(data.settings);
-    for (let i = 0; i < data.messages.length; i++) {
-        let message = data.messages[i];
-
-        let authorFlag = Number.parseInt(message[1]);
-        if (authorFlag < 2) {
-            let author = message[1] == data.owner ? "You" : "Opponent";
-            addToLog(message[0], author, message[2]);
-        }
-        else {
-            let author = message[1] == 2;
-            if (authorFlag - 2 == data.owner) {
+    if (data.settings[2] == "setup" || data.settings[2] == "underway") {
+        redirectToGame(data.settings[0]);
+    }
+    else {
+        setLoadedSettings(data.settings);
+        for (let i = 0; i < data.messages.length; i++) {
+            let message = data.messages[i];
+    
+            let authorFlag = Number.parseInt(message[1]);
+            if (authorFlag < 2) {
+                let author = message[1] == data.owner ? "You" : "Opponent";
                 addToLog(message[0], author, message[2]);
+            }
+            else {
+                if (authorFlag - 2 == data.owner) {
+                    addToLog(message[0], "Event", message[2]);
+                }
             }
         }
     }

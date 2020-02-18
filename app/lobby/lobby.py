@@ -18,7 +18,7 @@ def encrypt_lobby_id(lobby_id, owner):
 
 def change_setting(lobby_id, setting, value):
     database.change_lobby_setting(lobby_id, setting, value)
-    web_app.logger.info("Updated: " + str(setting))
+    web_app.logger.info("Updated: " + str(setting) + " to " + str(value))
 
 @socket_io.on("lobby_pvp")
 def handle_message(message):
@@ -39,7 +39,7 @@ def handle_rejoin(json_data):
     join_room(get_room(data["id"], data["owner"]))
     web_app.logger.info("Trying to rejoin " + data["id"] + " owner: " + str(data["owner"]))
     if encrypt_lobby_id(data["id"], data["owner"]) == data["hash"]:
-        handle_join(data["id"], 1 if data["owner"] else 0)
+        handle_join(data["id"], data["owner"])
 
 def handle_join(lobby_id, owner):
     data = database.get_lobby_data(lobby_id)
@@ -74,14 +74,14 @@ def handle_setting_changed(json_data):
 @socket_io.on("start_setup")
 def handle_start_setup(json_data):
     data = json.loads(json_data)
-    if encrypt_lobby_id(data["lobby_id"], 1) == data["hash"]:
-        change_setting(data["lobby_id"], "status", "setup")
-        socket_io.emit("setup-started", data["lobby_id"])
+    if encrypt_lobby_id(data["id"], 1) == data["hash"]:
+        change_setting(data["id"], "status", "setup")
+        socket_io.emit("setup_started", data["id"], room=get_room(data["id"], 0))
 
 @socket_io.on("message_sent")
 def handle_chat_message(json_data):
     data = json.loads(json_data)
-    web_app.logger.info("Saved chat message: " + data["msg"])
+    web_app.logger.info(f"Saved chat message: {data['msg']}, author: {data['owner']}")
     database.add_chat_msg(data["id"], data["msg"], data["owner"])
     if not data["is_event"]:
         socket_io.emit("message_received", data["msg"],

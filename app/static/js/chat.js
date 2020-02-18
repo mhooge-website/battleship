@@ -2,19 +2,8 @@ var messageLog = document.getElementById("chat-content");
 var messageInput = document.getElementById("chat-input");
 var sendButton = document.getElementById("chat-send");
 
-function getCookieVal(key) {
-    let cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        let kv = cookies[i].split("=");
-        if (kv[0].trim() == key) {
-            return kv[1].trim();
-        }
-    }
-    return null;
-}
-
 function addToLog(message, author, timestamp=null) {
-    let template = document.getElementsByClassName("chat-msg").item(0);
+    let template = document.getElementsByClassName("template-msg").item(0);
     let textElem = template.cloneNode(true);
     textElem.classList.remove("template-msg");
 
