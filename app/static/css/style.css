@@ -22,7 +22,7 @@ body {
 
 button {
     font-size: 1.2rem;
-    background-color: wheat;
+    background-color: rgb(88, 151, 168);
     border-color: black;
 }
 
@@ -68,6 +68,10 @@ button {
 
 .chat-msg {
     margin: 0 3px;
+}
+
+.chat-event {
+    font-style: italic;
 }
 
 .chat-msg.template-msg {

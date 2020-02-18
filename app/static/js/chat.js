@@ -18,27 +18,43 @@ function addToLog(message, author, timestamp=null) {
     let textElem = template.cloneNode(true);
     textElem.classList.remove("template-msg");
 
+    let formattedTime = null;
     if (timestamp == null) {
         let now = new Date();
-        timestamp = now.getHours() + ":" + now.getMinutes();
+        formattedTime = now.getHours() + ":" + now.getMinutes();
     }
-    console.log(timestamp);
-    timestamp = "test"
+    else {
+        let split = timestamp.split(" ");
+        let timeSplit = split[1].split(":");
+        let hours = Number.parseInt(timeSplit[0]) + 1;
+        if (hours == 24) hours = 0;
+        formattedTime = hours + ":" + timeSplit[1];
+    }
     let contentElem = textElem.getElementsByClassName("chat-msg-content").item(0);
-    let authorElem = textElem.getElementsByClassName("chat-msg-author").item(0);
-    authorElem.textContent = author + " (" + timestamp + ")";
+    if (author != "Event") {
+        let authorElem = textElem.getElementsByClassName("chat-msg-author").item(0);
+        authorElem.textContent = author + " (" + formattedTime + "): ";
+    }
+    else {
+        contentElem.classList.add("chat-event");
+    }
     contentElem.textContent = message;
 
     messageLog.appendChild(textElem);
+}
+
+function addMsgToDB(message, event=false) {
+    let cookieJson = JSON.parse(getCookieVal("battleship"));
+    let owner = event ? 2 : cookieJson.owner;
+    let json = JSON.stringify({id: cookieJson.id, msg: message, is_event: event, owner: owner});
+    socket.emit("message_sent", json);
 }
 
 function addFromInput() {
     let message = messageInput.value;
     addToLog(message, "You");
     messageInput.value = "";
-    let cookieJson = JSON.parse(getCookieVal("battleship"));
-    let json = JSON.stringify({id: cookieJson.id, msg: message, owner: cookieJson.owner});
-    socket.emit("message_sent", json);
+    addMsgToDB(message);
 }
 
 socket.on("message_received", function(msg) {

@@ -18,8 +18,7 @@ def create_lobby(lobby_id):
         db.commit()
 
 def valid_id(lobby_id):
-    with closing(get_connection()) as db:
-        return db.cursor().execute("SELECT * FROM lobbies WHERE id=?", (lobby_id,)).rowcount > 0
+    return get_lobby_data(lobby_id) is not None
 
 def get_lobby_data(lobby_id):
     with closing(get_connection()) as db:
