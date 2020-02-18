@@ -7,11 +7,11 @@
 <div id="game-setup">
     <h1>Setup Phase</h1>
     <div id="game-ships">
-        <button><img class="ship-tiny"></button>
-        <button><img class="ship-small"></button>
-        <button><img class="ship-small"></button>
-        <button><img class="ship-medium"></button>
-        <button><img class="ship-large"></button>
+        <button><img class="ship-tiny" src="{{ url_for('static', filename='img/AircraftCarrier_horizontal.png') }}"></button>
+        <button><img class="ship-small" src="{{ url_for('static', filename='img/BattleShip_horizontal.png') }}"></button>
+        <button><img class="ship-small" src="{{ url_for('static', filename='img/Cruiser_horizontal.png') }}"></button>
+        <button><img class="ship-medium" src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}"></button>
+        <button><img class="ship-large" src="{{ url_for('static', filename='img/Submarine_horizontal.png') }}"></button>
     </div>
     <div id="game-boards-wrapper">
         <div id="game-own-board" class="game-board">
