@@ -2,28 +2,43 @@
 {% block title %}Lobby{% endblock %}
 {% block head %}
 {{ super() }}
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+</script>
 {% endblock %}
 {% block content %}
 <div id="game-setup">
     <h1>Setup Phase</h1>
     <div id="game-ships">
-        <button><img class="ship-tiny" src="{{ url_for('static', filename='img/AircraftCarrier_horizontal.png') }}"></button>
-        <button><img class="ship-small" src="{{ url_for('static', filename='img/BattleShip_horizontal.png') }}"></button>
-        <button><img class="ship-small" src="{{ url_for('static', filename='img/Cruiser_horizontal.png') }}"></button>
-        <button><img class="ship-medium" src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}"></button>
-        <button><img class="ship-large" src="{{ url_for('static', filename='img/Submarine_horizontal.png') }}"></button>
+        <button class="ship-btn" data-ship_size="1" data-ship_id="ship-patrol">
+            <img src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}">
+        </button>
+        <button class="ship-btn" data-ship_size="2" data-ship_id="ship-cruiser">
+            <img src="{{ url_for('static', filename='img/Cruiser_horizontal.png') }}">
+        </button>
+        <button class="ship-btn" data-ship_size="3" data-ship_id="ship-battleship">
+            <img src="{{ url_for('static', filename='img/BattleShip_horizontal.png') }}">
+        </button>
+        <button class="ship-btn" data-ship_size="3" data-ship_id="ship-submarine">
+            <img src="{{ url_for('static', filename='img/Submarine_horizontal.png') }}">
+        </button>
+        <button class="ship-btn" data-ship_size="4" data-ship_id="ship-aircraft">
+            <img src="{{ url_for('static', filename='img/AircraftCarrier_horizontal.png') }}">
+        </button>
     </div>
     <div id="game-boards-wrapper">
         <div id="game-own-board" class="game-board">
             {% for y in grid %}
                 <div class="grid-row">
                 {% for x in grid %}
-                    <button class="grid-button">
+                    <button class="grid-button" data-x="{{ x }}" data-y="{{ y }}">
     
                     </button>
                 {% endfor %}
                 </div>
             {% endfor %}
+            <p id="status-opponent" class="player-inactive">Not Ready</p>
         </div>
         <div id="game-enemy-board" class="game-board board-disabled">
             {% for y in grid %}
@@ -35,8 +50,10 @@
                 {% endfor %}
                 </div>
             {% endfor %}
+            <p id="status-self" class="player-inactive">Not Ready</p>
         </div>
     </div>
+    <button id="player-action-btn" disabled onclick="markAsReady();">Ready</button>
 </div>
 
 {% include "chat.html" %}

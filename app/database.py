@@ -17,6 +17,11 @@ def create_lobby(lobby_id):
         db.cursor().execute("INSERT INTO lobbies(id) VALUES (?)", (lobby_id,))
         db.commit()
 
+def create_game(lobby_id, start_turn):
+    with closing(get_connection()) as db:
+        db.cursor().execute("INSERT INTO games(id, turn) VALUES (?, ?)", (lobby_id, start_turn))
+        db.commit()
+
 def valid_id(lobby_id):
     return get_lobby_data(lobby_id) is not None
 
@@ -43,6 +48,18 @@ def add_chat_msg(lobby_id, msg, author):
 def get_chat_messages(lobby_id, db):
     return db.cursor().execute("SELECT message, author, date_time FROM " +
                                "chat_messages WHERE game_id=?", (lobby_id,)).fetchall()
+
+def mark_player_ready(lobby_id, player):
+    player_name = "p1_ready" if player == 1 else "p2_ready"
+    other_name = "p2_ready" if player == 1 else "p1_ready"
+    with closing(get_connection()) as db:
+        db.cursor().execute("UPDATE games SET " + player_name + "=1 WHERE game_id=?", (lobby_id,))
+        db.commit()
+        return db.cursor().execute("SELECT " + other_name + " FROM games WHERE game_id=?", (lobby_id,)).fetchone()
+
+def get_turn(lobby_id):
+    with closing(get_connection()) as db:
+        return db.cursor().execute("SELECT turn FROM games WHERE id=?", (lobby_id,)).fetchone()
 
 if not os.path.exists(web_app.config["DATABASE"]):
     create_database()

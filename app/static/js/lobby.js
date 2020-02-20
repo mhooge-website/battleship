@@ -35,7 +35,7 @@ function setLoadedSettings(data) {
     document.getElementById("invite-only").checked = data[3] == 0 ? "true" : "false";
     let cookieJson = JSON.parse(getCookieVal("battleship"));
     if (data[2] == "ready" && cookieJson.owner == 1) {
-        document.getElementById("start-btn").disabled = false;
+        document.getElementById("start-lobby-btn").disabled = false;
     }
 }
 
@@ -106,7 +106,7 @@ socket.on("lobby_ready_opp", function(jsonData) {
     addMsgToDB(eventMsg, true);
 });
 socket.on("lobby_ready_owner", function(msg) {
-    document.getElementById("start-btn").disabled = false;
+    document.getElementById("start-lobby-btn").disabled = false;
     let eventMsg = "A player has joined the lobby.";
     addToLog(eventMsg, "Event");
     addMsgToDB(eventMsg, true);

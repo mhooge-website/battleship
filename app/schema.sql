@@ -10,8 +10,7 @@ CREATE TABLE [games] (
     [p2_ready] INTEGER DEFAULT(0),
     [score_p1] INTEGER DEFAULT(0),
     [score_p2] INTEGER DEFAULT(0),
-    [turn] INTEGER DEFAULT(0),
-    [active] INTEGER DEFAULT(1)
+    [turn] INTEGER DEFAULT(0)
 );
 CREATE TABLE [ships] (
     [id] INTEGER PRIMARY KEY,

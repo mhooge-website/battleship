@@ -25,4 +25,5 @@ web_app.secret_key = "guyhtgsytggg23rteg6221gdgadaw"
 socket_io = SocketIO(web_app, logger=True)
 
 from app import routes
-from app.lobby import lobby
+from app import lobby
+from app import game
