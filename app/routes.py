@@ -30,8 +30,9 @@ def join_game(lobby_id):
         if lobby_data[0][2] == "underway":
             ships_data = database.get_ships(lobby_data[0], None)
             for row in ships_data:
-                for x, y, hit in row:
-                    val = "hit_ship" if hit == 1 else "placed_ship"
+                for x, y, hit, owner in row:
+                    owner_val = 1 if owner == 1 else -1
+                    val = 1 + (hit * owner_val)
                     ships[y][x] = (x, val)
 
         return render_template("game.html", status=lobby_data[0][2], ships=ships)

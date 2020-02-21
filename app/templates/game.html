@@ -33,7 +33,8 @@
             {% for y, ship_list in ships %}
                 <div class="grid-row">
                 {% for x, ship in ship_list %}
-                    <button class="grid-button-self {% if ship == 1 %}placed-ship{% endif %}{% if ship == -1 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
+                    <button class="grid-button-self'' {% if ship == 1 %}placed-ship{% endif %}
+                        {% if ship == 2 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
                         
                     </button>
                 {% endfor %}
