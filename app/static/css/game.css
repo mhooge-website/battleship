@@ -1,0 +1,72 @@
+.inner {
+    margin-top: 3vh;
+    flex-basis: 89vh;
+}
+
+#game-boards-wrapper {
+    width: 800px;
+    max-width: 95vw;
+    margin: 0 auto;
+}
+
+.game-board {
+    display: inline-block;
+    margin: 10px;
+    width: 45%;
+    min-width: 300px;
+}
+
+.board-disabled button {
+    background-color: gray;
+}
+
+.grid-row {
+    display: inline-block;
+    width: 100%;
+}
+
+.grid-button-self, .grid-button-opp {
+    background-color: rgb(59, 96, 197);
+    width: 8%;
+    height: 8%;
+    max-width: 30px;
+    max-height: 30px;
+    margin: 2px 1px;
+}
+
+#status-opponent, #status-self {
+    text-align: center;
+    font-size: 20px;
+}
+
+.player-ready {
+    color: rgba(56, 160, 56, 0.918);
+}
+
+.player-turn {
+    color: white;
+}
+
+.player-waiting {
+    color: rgba(194, 47, 47, 0.897);
+}
+
+.player-hide {
+    display: none;
+}
+
+.selected-ship {
+    border: solid 2px red;
+}
+
+.placed-ship {
+    background-color: white;
+}
+
+.hit-ship {
+    background-color: red;
+}
+
+.ship-btn:disabled {
+    background-color: gray;
+}

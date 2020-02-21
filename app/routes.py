@@ -26,7 +26,15 @@ def join_lobby(lobby_id):
 def join_game(lobby_id):
     lobby_data = database.get_lobby_data(lobby_id)
     if lobby_data is not None and lobby_data[0][2] in ("setup", "underway"):
-        return render_template("game.html", status=lobby_data[0][2], grid=[x for x in range(10)])
+        ships = [(y, [(x, 0) for x in range(10)]) for y in range(10)]
+        if lobby_data[0][2] == "underway":
+            ships_data = database.get_ships(lobby_data[0], None)
+            for row in ships_data:
+                for x, y, hit in row:
+                    val = "hit_ship" if hit == 1 else "placed_ship"
+                    ships[y][x] = (x, val)
+
+        return render_template("game.html", status=lobby_data[0][2], ships=ships)
 
 @web_app.route('/search')
 def search_game():

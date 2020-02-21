@@ -1,6 +1,6 @@
 function setCookieData(id, hash, owner) {
     let cookieData = JSON.stringify({id: id, hash: hash, owner: owner});
-    document.cookie = "battleship=" + cookieData;
+    document.cookie = "battleship=" + cookieData + ";path=/";
 }
 
 function removeLobbySession() {

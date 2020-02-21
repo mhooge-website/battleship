@@ -8,6 +8,7 @@ from app import shared
 def handle_player_ready(json_data):
     data = json.loads(json_data)
     if shared.encrypt_lobby_id(data["id"], data["owner"]) == data["hash"]:
+        database.save_ship_coords(data["id"], data["owner"], data["ships"])
         other_ready = database.mark_player_ready(data["id"], data["owner"])
         if int(other_ready) == 1:
             turn = database.get_turn(data["id"])

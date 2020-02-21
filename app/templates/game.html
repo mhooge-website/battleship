@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Lobby{% endblock %}
+{% block title %}Battleship{% endblock %}
 {% block head %}
 {{ super() }}
 <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io();
 </script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/game.css') }}">
 {% endblock %}
 {% block content %}
 <div id="game-setup">
@@ -29,11 +30,11 @@
     </div>
     <div id="game-boards-wrapper">
         <div id="game-own-board" class="game-board">
-            {% for y in grid %}
+            {% for y, ship_list in ships %}
                 <div class="grid-row">
-                {% for x in grid %}
-                    <button class="grid-button" data-x="{{ x }}" data-y="{{ y }}">
-    
+                {% for x, ship in ship_list %}
+                    <button class="grid-button-self {% if ship == 1 %}placed-ship{% endif %}{% if ship == -1 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
+                        
                     </button>
                 {% endfor %}
                 </div>
@@ -41,10 +42,10 @@
             <p id="status-opponent" class="player-inactive">Not Ready</p>
         </div>
         <div id="game-enemy-board" class="game-board board-disabled">
-            {% for y in grid %}
+            {% for y, ship_list in ships %}
                 <div class="grid-row">
-                {% for x in grid %}
-                    <button class="grid-button" disabled>
+                {% for x, _ in ship_list %}
+                    <button class="grid-button-opp" disabled>
                         
                     </button>
                 {% endfor %}

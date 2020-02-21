@@ -43,7 +43,6 @@ button {
 #chat-wrapper {
     margin-top: 20px;
     width: 100%;
-    margin-bottom: 165px;
 }
 
 #chat-inner {
@@ -71,6 +70,7 @@ button {
 #chat-send {
     position: absolute;
     right: 0;
+    font-size: 20px;
 }
 
 .chat-msg {
@@ -87,56 +87,4 @@ button {
 
 .chat-msg-author {
     font-weight: 600;
-}
-
-#game-boards-wrapper {
-    width: 800px;
-    max-width: 95vw;
-    margin: 0 auto;
-}
-
-.game-board {
-    display: inline-block;
-    margin: 10px;
-    width: 45%;
-    min-width: 300px;
-}
-
-.board-disabled button {
-    background-color: gray;
-}
-
-.grid-row {
-    display: inline-block;
-    width: 100%;
-}
-
-.grid-button {
-    background-color: white;
-    width: 8%;
-    height: 8%;
-    max-width: 30px;
-    max-height: 30px;
-    margin: 2px 1px;
-}
-
-#status-opponent, #status-self {
-    text-align: center;
-    font-size: 20px;
-}
-
-.player-active {
-    color: rgba(56, 160, 56, 0.918);
-}
-
-.player-inactive {
-    color: rgba(194, 47, 47, 0.897);
-}
-
-.selected-ship {
-    border: solid 2px red;
-}
-
-.placed-ship {
-    background-color: rgb(62, 62, 212);
 }

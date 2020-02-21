@@ -57,6 +57,23 @@ def mark_player_ready(lobby_id, player):
         db.commit()
         return db.cursor().execute("SELECT " + other_name + " FROM games WHERE game_id=?", (lobby_id,)).fetchone()
 
+def save_ship_coords(lobby_id, owner, ships):
+    with closing(get_connection()) as db:
+        for coords in ships:
+            x = coords["x"]
+            y = coords["y"]
+            db.cursor().execute("INSERT INTO ships(game_id, x, y, owner) VALUES (?, ?, ?, ?)", (lobby_id, x, y, owner))
+        db.commit()
+
+def get_ships(lobby_id, owner):
+    with closing(get_connection()) as db:
+        query_str = "SELECT x, y, hit, owner FROM ships WHERE game_id =?"
+        param_tuple = (lobby_id,)
+        if owner is not None:
+            query_str += " AND owner=?"
+            param_tuple = param_tuple + (owner,)
+        return db.cursor().execute(query_str, param_tuple).fetchall()
+
 def get_turn(lobby_id):
     with closing(get_connection()) as db:
         return db.cursor().execute("SELECT turn FROM games WHERE id=?", (lobby_id,)).fetchone()
