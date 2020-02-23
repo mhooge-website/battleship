@@ -16,7 +16,11 @@
     min-width: 300px;
 }
 
-.board-disabled button {
+#game-own-board.board-disabled button {
+    background-color: rgba(39, 179, 179, 0.829);
+}
+
+#game-enemy-board.board-disabled button {
     background-color: gray;
 }
 
@@ -52,7 +56,11 @@
 }
 
 .player-hide {
-    display: none;
+    opacity: 0;
+}
+
+.selected-grid {
+    border: solid 2px white;
 }
 
 .selected-ship {
@@ -60,13 +68,25 @@
 }
 
 .placed-ship {
-    background-color: white;
+    background-color: rgb(218, 156, 105) !important;
 }
 
-.hit-ship {
-    background-color: red;
+.grid-button-self.hit-ship {
+    background-color: red !important;
+}
+
+.grid-button-opp.hit-ship {
+    background-color: green !important;
 }
 
 .ship-btn:disabled {
     background-color: gray;
+}
+
+.grid-button-self.shot-missed {
+    background-color: rgb(179, 179, 179) !important;
+}
+
+.grid-button-opp.shot-missed {
+    background-color: red !important;
 }

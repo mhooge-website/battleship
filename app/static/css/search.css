@@ -1,0 +1,44 @@
+.inner {
+    width: 90vw;
+    max-width: 800px;
+    margin-top: 3vh;
+}
+
+#lobbies-list {
+    background-color: rgb(88, 88, 88);
+}
+
+.lobby-list-elem {
+    padding: 3px;
+}
+
+.lobby-list-elem > div {
+    display: inline-block;
+}
+
+.lobby-name {
+    width: 30%;
+    border-right: solid white 2px;
+}
+
+.lobby-id {
+    width: 40%;
+    border-right: solid white 2px;
+}
+
+.lobby-status {
+    width: 15%;
+}
+
+.join-button {
+    width: 10%;
+}
+
+.header-padding {
+    opacity: 0;
+    width: 10%;
+}
+
+.status-pending {
+    color: rgb(53, 175, 53);
+}

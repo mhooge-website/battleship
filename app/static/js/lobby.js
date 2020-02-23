@@ -4,7 +4,7 @@ function setCookieData(id, hash, owner) {
 }
 
 function removeLobbySession() {
-    document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
 }
 
 function updateSetting(setting, value) {
@@ -56,6 +56,11 @@ function settingUpdated(setting, value) {
         document.getElementById("invite-only").checked = value == 0;
 }
 
+function enableSettings() {
+    document.getElementById("lobby-name").disabled = false;
+    document.getElementById("invite-only").disabled = false;
+}
+
 var lobbyIdInput = document.getElementById("lobby-id");
 let lobbyJson = getCookieVal("battleship");
 
@@ -103,13 +108,11 @@ socket.on("lobby_ready_opp", function(jsonData) {
     setCookieData(data.id, data.hash, 0);
     let eventMsg = "You joined the lobby.";
     addToLog(eventMsg, "Event");
-    addMsgToDB(eventMsg, true);
 });
 socket.on("lobby_ready_owner", function(msg) {
     document.getElementById("start-lobby-btn").disabled = false;
     let eventMsg = "A player has joined the lobby.";
     addToLog(eventMsg, "Event");
-    addMsgToDB(eventMsg, true);
 });
 socket.on("lobby_joined", function(jsonData) {
     let data = JSON.parse(jsonData);
@@ -117,27 +120,16 @@ socket.on("lobby_joined", function(jsonData) {
         redirectToGame(data.settings[0]);
     }
     else {
-        setLoadedSettings(data.settings);
-        for (let i = 0; i < data.messages.length; i++) {
-            let message = data.messages[i];
-    
-            let authorFlag = Number.parseInt(message[1]);
-            if (authorFlag < 2) {
-                let author = message[1] == data.owner ? "You" : "Opponent";
-                addToLog(message[0], author, message[2]);
-            }
-            else {
-                if (authorFlag - 2 == data.owner) {
-                    addToLog(message[0], "Event", message[2]);
-                }
-            }
+        if (data.owner == 1) {
+            enableSettings();
         }
+        setLoadedSettings(data.settings);
+        addFromDatabase(data.messages, data.owner);
     }
 });
 socket.on("lobby_created", function(jsonData) {
     let data = JSON.parse(jsonData);
     lobbyIdInput.textContent = data.id;
     setCookieData(data.id, data.hash, 1);
-    document.getElementById("lobby-name").disabled = false;
-    document.getElementById("invite-only").disabled = false;
+    enableSettings();
 });

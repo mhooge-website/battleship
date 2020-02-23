@@ -2,7 +2,6 @@ import json
 from hashlib import md5
 from random import randint
 from time import time
-from flask import redirect
 from flask_socketio import join_room
 from app import web_app
 from app import socket_io
@@ -78,6 +77,5 @@ def handle_chat_message(json_data):
     data = json.loads(json_data)
     web_app.logger.info(f"Saved chat message: {data['msg']}, author: {data['owner']}")
     database.add_chat_msg(data["id"], data["msg"], data["owner"])
-    if not data["is_event"]:
-        socket_io.emit("message_received", data["msg"],
-                       room=shared.other_room(data["id"], data["owner"]))
+    socket_io.emit("message_received", data["msg"],
+                    room=shared.other_room(data["id"], data["owner"]))

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Battleship{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/search.css') }}">
+{% endblock %}
+{% block content %}
+<h1>Public Lobbies</h1>
+<div id="lobbies-list">
+    {% if not lobbies %}
+        <div>There are no public & active lobbies.</div>
+    {% else %}
+        <div class="lobby-list-elem list-header">
+            <div class="lobby-name">Name</div>
+            <div class="lobby-id">Lobby ID</div>
+            <div class="lobby-status">Status</div>
+            <div class="header-padding">dasd</div>
+        </div>
+        {% for id, name, status in lobbies %}
+            <div class="lobby-list-elem">
+                <div class="lobby-name">{{ name }}</div>
+                <div class="lobby-id">{{ id }}</div>
+                <div class="lobby-status status-{{status}}">{{ status }}</div>
+                <a href="{% if id == active_lobby %}{{ url_for('lobby_pvp') }}{% else %}{{ url_for('join_lobby', lobby_id=id) }}{% endif %}">
+                    <button {% if status != 'pending' and status != active_lobby %}disabled="true"{% endif %}
+                        class="join-button">
+                        {% if id == active_lobby %}Rejoin{% else %}Join{% endif %}
+                    </button>
+                </a>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

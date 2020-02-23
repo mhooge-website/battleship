@@ -10,8 +10,8 @@
 {% endblock %}
 {% block content %}
 <div id="game-setup">
-    <h1>Setup Phase</h1>
-    <div id="game-ships">
+    <h1 id="header-title">{% if status == 'setup' %}Setup Phase{% else %}Battleship{% endif %}</h1>
+    <div class="{% if p1_ready or status == 'underway' %}hidden{% else %}game-ships{% endif %}">
         <button class="ship-btn" data-ship_size="1" data-ship_id="ship-patrol">
             <img src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}">
         </button>
@@ -29,33 +29,56 @@
         </button>
     </div>
     <div id="game-boards-wrapper">
-        <div id="game-own-board" class="game-board">
-            {% for y, ship_list in ships %}
+        <div id="game-own-board" class="game-board {% if status == 'underway' %}board-disabled{% endif %}">
+            {% for y, row in grid_data[0] %}
                 <div class="grid-row">
-                {% for x, ship in ship_list %}
-                    <button class="grid-button-self'' {% if ship == 1 %}placed-ship{% endif %}
-                        {% if ship == 2 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
+                {% for x, grid in row %}
+                    <button class="grid-button-self {% if grid == 1 %}shot-missed{% elif grid == 2 %}placed-ship
+                            {% elif grid == 3 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
                         
                     </button>
                 {% endfor %}
                 </div>
             {% endfor %}
-            <p id="status-opponent" class="player-inactive">Not Ready</p>
+            {% if status == 'setup' %}
+                <p id="status-self" class="player-{% if p1_ready %}ready{% else %}waiting{% endif %}">
+                    {% if not p1_ready %}Not{% endif %} Ready
+                </p>
+            {% else %}
+                <p id="status-self" class="player-hide">
+                    Fire at Will!
+                </p>
+            {% endif %}
         </div>
-        <div id="game-enemy-board" class="game-board board-disabled">
-            {% for y, ship_list in ships %}
+        <div id="game-enemy-board" class="game-board {% if status == 'setup' or not turn %}board-disabled{% endif %}">
+            {% for y, row in grid_data[1] %}
                 <div class="grid-row">
-                {% for x, _ in ship_list %}
-                    <button class="grid-button-opp" disabled>
+                {% for x, grid in row %}
+                    <button class="grid-button-opp {% if grid == -1 %}shot-missed{% elif grid == -3 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
                         
                     </button>
                 {% endfor %}
                 </div>
             {% endfor %}
-            <p id="status-self" class="player-inactive">Not Ready</p>
+            {% if status == 'setup' %}
+                <p id="status-opponent" class="player-{% if p2_ready %}ready{% else %}waiting{% endif %}">
+                    {% if not p2_ready %}Not{% endif %} Ready
+                </p>
+            {% else %}
+                <p id="status-opponent" class="player-turn">
+                    {% if turn %}
+                    Fire at Will!
+                    {% else %} 
+                    Waiting for Move
+                    {% endif %}
+                </p>
+            {% endif %}
         </div>
     </div>
-    <button id="player-action-btn" disabled onclick="markAsReady();">Ready</button>
+    <button id="player-action-btn" {% if not turn %}disabled="disabled"{% endif %} onclick="{% if status == 'setup' %}markAsReady();{% else %}makeMove();{% endif %}">
+        {% if status == 'setup' %}Ready{% else %}Fire!{% endif %}
+    </button>
+
 </div>
 
 {% include "chat.html" %}
@@ -64,4 +87,9 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% if status == 'setup' %}
+    <script>initSetup();</script>
+{% else %}
+    <script>initGame();</script>
+{% endif %}
 {% endblock %}
