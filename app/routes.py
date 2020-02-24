@@ -1,5 +1,5 @@
 import json
-from flask import render_template, request, make_response
+from flask import render_template, request, redirect, make_response
 from app import web_app
 from app import database
 from app import shared
@@ -9,6 +9,15 @@ from app import shared
 def index():
     return render_template("index.html")
 
+@web_app.route('lobby/pvp/new')
+def new_lobby():
+    resp = make_response(
+        render_template("lobby.html", game_type="pvp"),
+        302
+    )
+    resp.set_cookie("battleship", "", expires=0)
+    return redirect("/lobby/pvp", 302, resp)
+
 @web_app.route('/lobby/pvp')
 def lobby_pvp():
     return render_template("lobby.html", game_type="pvp")
@@ -17,17 +26,15 @@ def lobby_pvp():
 def lobby_pvai():
     return render_template("lobby.html", game_type="pvai")
 
-def invalid_user():
+def error_response(msg, http_code):
     return make_response(
-        render_template("error.html",
-                        error_msg="You are not authorized to access this game"),
-        401)
+        render_template("error.html", error_msg=msg), http_code)
+
+def invalid_user():
+    return error_response("You are not authorized to access this game", 401)
 
 def invalid_lobby():
-    return make_response(
-        render_template("error.html",
-                        error_msg="A lobby with that ID does not exist"),
-        404)
+    return error_response("A lobby with that ID does not exist", 404)
 
 def verify_user_cookie():
     if "battleship" in request.cookies:

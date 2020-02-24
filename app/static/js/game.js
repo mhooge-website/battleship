@@ -206,6 +206,16 @@ function initGame() {
     }
 }
 
+function gameOver(winner) {
+    document.getElementById("game-div").classList.add("darken");
+    let modal = document.getElementById("game-over-modal");
+    let header = "game-over-header-" + (winner ? "won" : "lost");
+    let splash = "splash-"  + (winner ? "won" : "lost");
+    header.style.display = "block";
+    splash.style.display = "block";
+    modal.style.display = "block";
+}
+
 socket.emit("player_joined", getCookieVal("battleship"));
 
 socket.on("chat_loaded", function(jsonData) {
@@ -218,10 +228,10 @@ socket.on("move_made", function(jsonData) {
     let owner = JSON.parse(getCookieVal("battleship")).owner;
     if (data["winner"] != -1) {
         if (data["winner"] == owner) {
-            alert("YOU WON!");
+            gameOver(true); // We won!
         }
         else {
-            alert("YOU LOST!");
+            gameOver(false);
         }
     }
     else

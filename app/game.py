@@ -41,6 +41,7 @@ def handler_player_move(json_data):
         web_app.logger.info(f"Player {data['owner']} made a move at {data['x']}, {data['y']}.{hit_str}")
         if winning_player != -1:
             web_app.logger.info(f"Player {winning_player} won!")
+            database.change_lobby_setting(data["id"], "status", "ended")
         data["turn"] = new_turn
         data["hit"] = hit
         data["winner"] = winning_player
