@@ -26,34 +26,17 @@ def lobby_pvp():
 def lobby_pvai():
     return render_template("lobby.html", game_type="pvai")
 
-def error_response(msg, http_code):
-    return make_response(
-        render_template("error.html", error_msg=msg), http_code)
-
-def invalid_user():
-    return error_response("You are not authorized to access this game", 401)
-
-def invalid_lobby():
-    return error_response("A lobby with that ID does not exist", 404)
-
-def verify_user_cookie():
-    if "battleship" in request.cookies:
-        cookie_data = json.loads(request.cookies["battleship"])
-        return shared.encrypt_lobby_id(
-            cookie_data["id"], cookie_data["owner"]) == cookie_data["hash"]
-    return False
-
 @web_app.route('/lobby/pvp/<lobby_id>', methods=['GET'])
 def join_lobby(lobby_id):
     if database.valid_id(lobby_id):
         web_app.logger.info("Someone joined " + lobby_id)
         return render_template("lobby.html", lobby_id=lobby_id)
-    return invalid_lobby()
+    return shared.invalid_lobby()
 
 @web_app.route('/game/<lobby_id>', methods=['GET'])
 def join_game(lobby_id):
-    if not verify_user_cookie():
-        return invalid_user()
+    if not shared.verify_user_cookie():
+        return shared.invalid_user()
 
     lobby_data = database.get_lobby_data(lobby_id)
 
@@ -97,13 +80,13 @@ def join_game(lobby_id):
 
         return render_template("game.html", p1_ready=self_ready, p2_ready=other_ready,
                                turn=player_turn, status=lobby_data[0][2], grid_data=grid_data)
-    return invalid_lobby()
+    return shared.invalid_lobby()
 
 @web_app.route('/search')
 def search_game():
     lobbies = database.get_public_lobbies()
     active_lobby = None
-    if verify_user_cookie():
+    if shared.verify_user_cookie():
         cookie_data = json.loads(request.cookies["battleship"])
         active_lobby = cookie_data["id"]
     return render_template("search.html", lobbies=lobbies, active_lobby=active_lobby)
