@@ -82,17 +82,17 @@
 
 {% include "chat.html" %}
 
+{% endblock %}
+{% block scripts %}
 <div id="game-over-modal">
-    <h1 id="game-over-header-won">You did it!</h1>
-    <h1 id="game-over-header-lost">Your fleet has been sunk!</h1>
+    <h1 id="game-over-header-won">Victory!</h1>
+    <h1 id="game-over-header-lost">Defeat!</h1>
     <div id="game-over-splash">
-        <img id="splash-won">
-        <img id="splash-lost">
+        <img id="splash-won" src="{{ url_for('static', filename='img/victory.jpg') }}">
+        <img id="splash-lost" src="{{ url_for('static', filename='img/defeat.jpg') }}">
     </div>
 </div>
 
-{% endblock %}
-{% block scripts %}
 <script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>

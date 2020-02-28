@@ -22,6 +22,43 @@
 
 #game-over-modal {
     display: none;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#game-over-splash {
+    border: solid black 3px;
+    border-radius: 5px;
+    top: 20vh;
+    position: absolute;
+    left: 31.3vw;
+}
+
+#game-over-modal > h1 {
+    position: absolute;
+    top: 34%;
+    font-size: 80px;
+    text-shadow: 2px 2px 2px black;
+    z-index: 5;
+}
+
+#game-over-header-won {
+    color: #1fa81f;
+    left: 43%;
+}
+
+#game-over-header-lost {
+    color: #d31b1b;
+    left: 42%;
+}
+
+#game-over-splash > img {
+    width: 700px;
+    max-width: 90vw;
 }
 
 #game-own-board.board-disabled button {

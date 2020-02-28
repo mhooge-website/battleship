@@ -2,18 +2,20 @@ function getGridBtn(x, y, buttonArr) {
     return buttonArr[y * 10 + x];
 }
 
-function getShipCoords(buttonArr) {
+function getShipCoords() {
     let coords = [];
-    for (let i = 0; i < buttonArr.length; i++) {
-        if (buttonArr[i].classList.contains("placed-ship")) {
-            coords.push({x: buttonArr[i].dataset["x"], y: buttonArr[i].dataset["y"]});
+    let buttons = document.getElementsByClassName("grid-button-self");
+    for (let i = 0; i < buttons.length; i++) {
+        let btn = buttons.item(i);
+        if (btn.classList.contains("placed-ship")) {
+            coords.push({x: btn.dataset["x"], y: btn.dataset["y"]});
         }
     }
     return coords;
 }
 
 function markAsReady() {
-    let ships = getShipCoords(buttonArr);
+    let ships = getShipCoords();
     let data = JSON.parse(getCookieVal("battleship"));
     document.getElementById("player-action-btn").disabled = true;
     data["ships"] = ships;
@@ -207,10 +209,11 @@ function initGame() {
 }
 
 function gameOver(winner) {
-    document.getElementById("game-div").classList.add("darken");
     let modal = document.getElementById("game-over-modal");
-    let header = "game-over-header-" + (winner ? "won" : "lost");
-    let splash = "splash-"  + (winner ? "won" : "lost");
+    let headerName = "game-over-header-" + (winner ? "won" : "lost");
+    let header = document.getElementById(headerName);
+    let splashName = "splash-"  + (winner ? "won" : "lost");
+    let splash = document.getElementById(splashName);
     header.style.display = "block";
     splash.style.display = "block";
     modal.style.display = "block";
@@ -239,6 +242,7 @@ socket.on("move_made", function(jsonData) {
 });
 socket.on("start_game", function(turn) {
     document.getElementById("header-title").textContent = "Battleship";
+    document.getElementById("status-self").classList.add("player-hide");
     initGame();
     disableBoard(document.getElementById("game-own-board"), true);
     let actionBtn = document.getElementById("player-action-btn");

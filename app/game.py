@@ -1,9 +1,10 @@
 import json
 from flask_socketio import join_room
-from app import web_app
-from app import socket_io
+from flask import current_app
 from app import database
 from app import shared
+
+socket_io = shared.socketio
 
 @socket_io.on("player_joined")
 def handle_player_joined(json_data):
@@ -23,10 +24,10 @@ def handle_player_ready(json_data):
         if int(other_ready) == 1:
             turn = database.get_turn(data["id"])
             database.change_lobby_setting(data["id"], "status", "underway")
-            web_app.logger.info("Both players are ready!")
+            current_app.logger.info("Both players are ready!")
             socket_io.emit("start_game", turn)
         else:
-            web_app.logger.info("One player is ready")
+            current_app.logger.info("One player is ready")
             socket_io.emit("opponent_ready", "whew", room=shared.other_room(data["id"], data["owner"]))
 
 @socket_io.on("player_move")
@@ -38,9 +39,9 @@ def handler_player_move(json_data):
         hit = database.make_move(data["id"], new_turn, data["x"], data["y"])
         winning_player = database.game_winner(data["id"], data["owner"])
         hit_str = " It was a hit!" if hit else ""
-        web_app.logger.info(f"Player {data['owner']} made a move at {data['x']}, {data['y']}.{hit_str}")
+        current_app.logger.info(f"Player {data['owner']} made a move at {data['x']}, {data['y']}.{hit_str}")
         if winning_player != -1:
-            web_app.logger.info(f"Player {winning_player} won!")
+            current_app.logger.info(f"Player {winning_player} won!")
             database.change_lobby_setting(data["id"], "status", "ended")
         data["turn"] = new_turn
         data["hit"] = hit

@@ -1,16 +1,16 @@
 import os
 import sqlite3
 from contextlib import closing
-from app import web_app
+from flask import current_app
 
 def create_database():
     with closing(get_connection()) as db:
-        with web_app.open_resource("schema.sql", mode="r") as f:
+        with current_app.open_resource("schema.sql", mode="r") as f:
             db.cursor().executescript(f.read())
         db.commit()
 
 def get_connection():
-    return sqlite3.connect(web_app.config["DATABASE"])
+    return sqlite3.connect(current_app.config["DATABASE"])
 
 def create_lobby(lobby_id):
     with closing(get_connection()) as db:
@@ -113,5 +113,6 @@ def game_winner(lobby_id, player):
             return -1
         return player
 
-if not os.path.exists(web_app.config["DATABASE"]):
-    create_database()
+def init_db():
+    if not os.path.exists(current_app.config["DATABASE"]):
+        create_database()

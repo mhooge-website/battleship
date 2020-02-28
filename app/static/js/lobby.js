@@ -40,7 +40,7 @@ function setLoadedSettings(data) {
 }
 
 function redirectToGame(lobbyId) {
-    window.location.href = window.location.host + "/game/" + lobbyId;
+    window.location.href = window.location.host + "projects/battleship/game/" + lobbyId;
 }
 
 function startSetup() {
@@ -66,10 +66,11 @@ let lobbyJson = getCookieVal("battleship");
 
 let urlSplit = window.location.pathname.split("/");
 if (lobbyJson != null) {
-    socket.emit("lobby_rejoin", lobbyJson);
+        socket.emit("lobby_rejoin", lobbyJson);
 }
-else if (urlSplit[2] == "pvp") {
-    if (urlSplit.length == 3) {
+else if (urlSplit[urlSplit.length-2] == "pvp") {
+    if (urlSplit[urlSplit.length-1] == "new") {
+        window.history.pushState({}, null, urlSplit.slice(0, urlSplit.length-1).join("/"));
         if (socket.connected)
             socket.emit("lobby_pvp", "yes");
         else {
@@ -81,10 +82,10 @@ else if (urlSplit[2] == "pvp") {
     }
     else {
         if (socket.connected)
-            socket.emit("lobby_full", urlSplit[3]);
+            socket.emit("lobby_full", urlSplit[urlSplit.length-1]);
         else {
             socket.on("connect", function() {
-                socket.emit("lobby_full", urlSplit[3]);
+                socket.emit("lobby_full", urlSplit[urlSplit.length-1]);
                 socket.off("connect");
             });
         }
@@ -107,6 +108,7 @@ socket.on("lobby_ready_opp", function(jsonData) {
     let data = JSON.parse(jsonData);
     setCookieData(data.id, data.hash, 0);
     let eventMsg = "You joined the lobby.";
+    setLoadedSettings(data.settings);
     addToLog(eventMsg, "Event");
 });
 socket.on("lobby_ready_owner", function(msg) {

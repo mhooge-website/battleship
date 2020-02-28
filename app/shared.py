@@ -1,6 +1,9 @@
-from flask import render_template, request, make_response
+import json
 from hashlib import md5
-from app import web_app
+from flask import render_template, request, make_response
+from flask import current_app
+
+socketio = None
 
 def other_room(lobby_id, owner):
     return get_room(lobby_id, (int(owner) * -1) + 1)
@@ -9,7 +12,7 @@ def get_room(lobby_id, owner):
     return lobby_id + str(owner)
 
 def encrypt_lobby_id(lobby_id, owner):
-    return md5(bytearray(lobby_id + str(owner) + web_app.secret_key, encoding="UTF-8")).hexdigest()
+    return md5(bytearray(lobby_id + str(owner) + current_app.secret_key, encoding="UTF-8")).hexdigest()
 
 def error_response(msg, http_code):
     return make_response(

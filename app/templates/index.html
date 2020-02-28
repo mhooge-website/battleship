@@ -8,11 +8,11 @@
         <h1>Battleship</h1>
         <div id="main-menu">
             <button onclick="showGameType();">Create game</button>
-            <a href="/search">
+            <a href="{{ url_for('search.search_game') }}">
                 <button>Find game</button>
             </a>
             <div id="game-type">
-                <a href="/lobby/pvp/new">
+                <a href="{{ url_for('lobby.new_lobby') }}">
                     <button>VS. Player</button>
                 </a>
                 <a href="/lobby/pvai">

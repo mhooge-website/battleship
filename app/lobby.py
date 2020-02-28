@@ -3,17 +3,19 @@ from hashlib import md5
 from random import randint
 from time import time
 from flask_socketio import join_room
-from app import web_app
-from app import socket_io
+from flask import current_app
 from app import database
 from app import shared
 
+socket_io = shared.socketio
+
 def change_setting(lobby_id, setting, value):
     database.change_lobby_setting(lobby_id, setting, value)
-    web_app.logger.info("Updated: " + str(setting) + " to " + str(value))
+    current_app.logger.info("Updated: " + str(setting) + " to " + str(value))
 
 @socket_io.on("lobby_pvp")
 def handle_message(message):
+    current_app.logger.info("New lobby bois")
     lobby_id = md5(bytearray(str(int(time() * 100)), encoding="UTF-8")).hexdigest()
     try:
         database.create_lobby(lobby_id)
@@ -21,7 +23,7 @@ def handle_message(message):
         json_data = json.dumps({"id": lobby_id, "hash": encrypted})
         join_room(shared.get_room(lobby_id, 1))
         socket_io.emit("lobby_created", json_data, room=shared.get_room(lobby_id, 1))
-        web_app.logger.info("Created lobby. ID: " + lobby_id)
+        current_app.logger.info("Created lobby. ID: " + lobby_id)
     except IOError:
         socket_io.emit("lobby_error", "Error when creating lobby.", room=shared.get_room(lobby_id, 1))
 
@@ -29,7 +31,7 @@ def handle_message(message):
 def handle_rejoin(json_data):
     data = json.loads(json_data)
     join_room(shared.get_room(data["id"], data["owner"]))
-    web_app.logger.info("Trying to rejoin " + data["id"] + " owner: " + str(data["owner"]))
+    current_app.logger.info("Trying to rejoin " + data["id"] + " owner: " + str(data["owner"]))
     if shared.encrypt_lobby_id(data["id"], data["owner"]) == data["hash"]:
         handle_join(data["id"], data["owner"])
 
@@ -38,7 +40,7 @@ def handle_join(lobby_id, owner):
     if data is None:
         socket_io.emit("invalid_lobby", "Invalid Lobby ID.", room=shared.get_room(lobby_id, owner))
     else:
-        web_app.logger.info("Rejoined " + lobby_id + " as " + str(owner))
+        current_app.logger.info("Rejoined " + lobby_id + " as " + str(owner))
         settings, messages = data
         socket_io.emit("lobby_joined",
                        json.dumps({"settings": settings, "messages": messages, "owner": owner}),
@@ -46,7 +48,7 @@ def handle_join(lobby_id, owner):
 
 @socket_io.on("lobby_full")
 def handle_lobby_full(lobby_id):
-    web_app.logger.info("Lobby is full: " + lobby_id)
+    current_app.logger.info("Lobby is full: " + lobby_id)
     change_setting(lobby_id, "status", "ready")
     handle_join(lobby_id, 0)
     join_room(shared.get_room(lobby_id, 0))
@@ -75,7 +77,7 @@ def handle_start_setup(json_data):
 @socket_io.on("message_sent")
 def handle_chat_message(json_data):
     data = json.loads(json_data)
-    web_app.logger.info(f"Saved chat message: {data['msg']}, author: {data['owner']}")
+    current_app.logger.info(f"Saved chat message: {data['msg']}, author: {data['owner']}")
     database.add_chat_msg(data["id"], data["msg"], data["owner"])
     socket_io.emit("message_received", data["msg"],
                     room=shared.other_room(data["id"], data["owner"]))
