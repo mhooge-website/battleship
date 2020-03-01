@@ -33,8 +33,7 @@
             {% for y, row in grid_data[0] %}
                 <div class="grid-row">
                 {% for x, grid in row %}
-                    <button class="grid-button-self {% if grid == 1 %}shot-missed{% elif grid == 2 %}placed-ship
-                            {% elif grid == 3 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
+                    <button class="grid-button-self {{ grid }}" data-x="{{ x }}" data-y="{{ y }}">
                         
                     </button>
                 {% endfor %}
@@ -54,7 +53,7 @@
             {% for y, row in grid_data[1] %}
                 <div class="grid-row">
                 {% for x, grid in row %}
-                    <button class="grid-button-opp {% if grid == -1 %}shot-missed{% elif grid == -3 %}hit-ship{% endif %}" data-x="{{ x }}" data-y="{{ y }}">
+                    <button class="grid-button-opp {{ grid }}" data-x="{{ x }}" data-y="{{ y }}">
                         
                     </button>
                 {% endfor %}
@@ -75,7 +74,7 @@
             {% endif %}
         </div>
     </div>
-    <button id="player-action-btn" {% if not turn %}disabled="disabled"{% endif %} onclick="{% if status == 'setup' %}markAsReady();{% else %}makeMove();{% endif %}">
+    <button id="player-action-btn" {% if not turn or status == 'setup' %}disabled="disabled"{% endif %} onclick="{% if status == 'setup' %}markAsReady();{% else %}makeMove();{% endif %}">
         {% if status == 'setup' %}Ready{% else %}Fire!{% endif %}
     </button>
 </div>

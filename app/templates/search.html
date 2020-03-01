@@ -21,12 +21,15 @@
                 <div class="lobby-name">{{ name }}</div>
                 <div class="lobby-id">{{ id }}</div>
                 <div class="lobby-status status-{{status}}">{{ status }}</div>
-                <a href="{% if id == active_lobby %}{{ url_for('lobby.lobby_pvp') }}{% else %}{{ url_for('lobby.join_lobby', lobby_id=id) }}{% endif %}">
-                    <button {% if status != 'pending' and status != active_lobby %}disabled="true"{% endif %}
-                        class="join-button">
-                        {% if id == active_lobby %}Rejoin{% else %}Join{% endif %}
-                    </button>
-                </a>
+                {% if (status != 'ended' and id == active_lobby) or status == 'pending' %}
+                    <a href="{% if id == active_lobby %}{{ url_for('game.join_game', lobby_id=id) }}{% else %}{{ url_for('lobby.join_lobby', lobby_id=id) }}{% endif %}">
+                        <button class="join-button">
+                            {% if id == active_lobby %}Rejoin{% else %}Join{% endif %}
+                        </button>
+                    </a>
+                {% else %}
+                    <div class="cant-join"></div>
+                {% endif %}
             </div>
         {% endfor %}
     {% endif %}

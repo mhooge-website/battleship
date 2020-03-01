@@ -5,11 +5,13 @@
 }
 
 #lobbies-list {
-    background-color: rgb(88, 88, 88);
+    background-color: rgb(62, 62, 62);
 }
 
 .lobby-list-elem {
     padding: 3px;
+    border-bottom: solid white 1px;
+    margin-top: 3px;
 }
 
 .lobby-list-elem > div {
@@ -24,6 +26,10 @@
 .lobby-id {
     width: 40%;
     border-right: solid white 2px;
+}
+
+.list-header {
+    border-top: solid white 1px;
 }
 
 .lobby-status {
@@ -41,4 +47,8 @@
 
 .status-pending {
     color: rgb(53, 175, 53);
+}
+
+.cant-join {
+    width: 10%;
 }

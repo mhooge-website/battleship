@@ -40,6 +40,7 @@
 
 #game-over-modal > h1 {
     position: absolute;
+    display: none;
     top: 34%;
     font-size: 80px;
     text-shadow: 2px 2px 2px black;
@@ -53,10 +54,11 @@
 
 #game-over-header-lost {
     color: #d31b1b;
-    left: 42%;
+    left: 43%;
 }
 
 #game-over-splash > img {
+    display: none;
     width: 700px;
     max-width: 90vw;
 }
@@ -134,4 +136,8 @@
 
 .grid-button-opp.shot-missed {
     background-color: red !important;
+}
+
+.sunk-ship {
+    background-color: black !important;
 }

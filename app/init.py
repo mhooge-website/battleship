@@ -1,5 +1,6 @@
 from flask_socketio import SocketIO
 from flask import Flask
+from flask_cors import CORS
 from logging.config import dictConfig
 from app import database
 
@@ -20,6 +21,7 @@ def create_app():
         }
     })
     web_app = Flask(__name__)
+    CORS(web_app)
     root = "/projects/battleship/"
     from app.routes import game, lobby, index, search
     web_app.register_blueprint(index.start_page, url_prefix=root)

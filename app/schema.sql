@@ -12,12 +12,19 @@ CREATE TABLE [games] (
     [score_p2] INTEGER DEFAULT(0),
     [turn] INTEGER DEFAULT(0)
 );
-CREATE TABLE [ships] (
+CREATE TABLE [ship_parts] (
     [id] INTEGER PRIMARY KEY,
     [game_id] NVARCHAR(64) NOT NULL,
+    [ship_id] NVARCHAR(32) NOT NULL,
     [x] INTEGER NOT NULL,
     [y] INTEGER NOT NULL,
     [owner] INTEGER NOT NULL
+);
+CREATE TABLE [ships] (
+    [id] NVARCHAR(32) NOT NULL,
+    [game_id] NVARCHAR(64) NOT NULL,
+    [owner] INTEGER NOT NULL,
+    [sunk] INTEGER DEFAULT(0)
 );
 CREATE TABLE [shots] (
     [id] INTEGER PRIMARY KEY,

@@ -5,10 +5,15 @@ function getGridBtn(x, y, buttonArr) {
 function getShipCoords() {
     let coords = [];
     let buttons = document.getElementsByClassName("grid-button-self");
+    let sizesSeen = [0, 0, 0, 0];
     for (let i = 0; i < buttons.length; i++) {
         let btn = buttons.item(i);
         if (btn.classList.contains("placed-ship")) {
-            coords.push({x: btn.dataset["x"], y: btn.dataset["y"]});
+            let size = Number.parseInt(btn.dataset["ship_size"]);
+            let num = Math.floor(sizesSeen[size-1] / size).toFixed(0);
+            let shipId = size + "_" + num;
+            sizesSeen[size-1] += 1;
+            coords.push({id: shipId, x: btn.dataset["x"], y: btn.dataset["y"]});
         }
     }
     return coords;
@@ -21,6 +26,10 @@ function markAsReady() {
     data["ships"] = ships;
     setPlayerStatus(true, "Ready", true);
     socket.emit("player_ready", JSON.stringify(data));
+}
+
+function allShipsPlaced() {
+    return document.getElementsByClassName("placed-ship").length == 13;
 }
 
 function setPlayerStatus(self, status, setup=false) {
@@ -51,7 +60,20 @@ function disableBoard(board, disable) {
     }
 }
 
-function swapTurns(turn, owner, coords=null, hit=false) {
+function getButton(x, y, ownBoard) {
+    let btnName = ownBoard ? "grid-button-self" : "grid-button-opp";
+    let buttons = document.getElementsByClassName(btnName);
+    for (let i = 0; i < buttons.length; i++) {
+        let btnX = Number.parseInt(buttons.item(i).dataset["x"]);
+        let btnY = Number.parseInt(buttons.item(i).dataset["y"]);
+        if (btnX == x && btnY == y) {
+            return buttons.item(i);
+        }
+    }
+    return null;
+}
+
+function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
     let affectedBoard = null;
     if (owner == turn) {
         setPlayerStatus(false, "Fire at Will!");
@@ -76,8 +98,17 @@ function swapTurns(turn, owner, coords=null, hit=false) {
             let btn = buttons.item(i);
             if (Number.parseInt(btn.dataset["x"]) == coords.x &&
                 Number.parseInt(btn.dataset["y"]) == coords.y) {
-                if (hit)
+                if (hit) {
                     btn.classList.add("hit-ship");
+
+                    for (let i = 0; i < sunkCoords.length; i++) {
+                        let x = sunkCoords[i][0];
+                        let y = sunkCoords[i][1];
+                        let sunkBtn = getButton(x, y, owner == turn);
+                        sunkBtn.classList.add("sunk-ship");
+                        sunkBtn.classList.remove("hit-ship");
+                    }
+                }
                 else
                     btn.classList.add("shot-missed");
                 btn.disabled = true;
@@ -170,12 +201,13 @@ function initSetup() {
                             affectedBtn.classList.add("placed-ship");
                             affectedBtn.classList.add(selectedShip.dataset["ship_id"]);
                             affectedBtn.dataset["ship_id"] = selectedShip.dataset["ship_id"];
+                            affectedBtn.dataset["ship_size"] = selectedShip.dataset["ship_size"];
                         }
                         startBtn.classList.remove("selected-grid");
                         selectedShip.disabled = true;
                         selectedShip.classList.remove("selected-ship");
     
-                        if (document.getElementsByClassName("placed-ship").length == 13) { // All ships placed.
+                        if (allShipsPlaced()) {
                             document.getElementById("player-action-btn").disabled = false;
                         }
                     }
@@ -186,6 +218,7 @@ function initSetup() {
             }
         }
     }
+    document.getElementById("player-action-btn").disabled = true;
 }
 
 function initGame() {
@@ -238,7 +271,7 @@ socket.on("move_made", function(jsonData) {
         }
     }
     else
-        swapTurns(data["turn"], owner, hitCoords, data["hit"]);
+        swapTurns(data["turn"], owner, hitCoords, data["hit"], data["sunk"]);
 });
 socket.on("start_game", function(turn) {
     document.getElementById("header-title").textContent = "Battleship";

@@ -32,7 +32,7 @@ function checkPublicChanged() {
 function setLoadedSettings(data) {
     document.getElementById("lobby-id").textContent = data[0];
     document.getElementById("lobby-name").value = data[1];
-    document.getElementById("invite-only").checked = data[3] == 0 ? "true" : "false";
+    document.getElementById("invite-only").checked = data[3] == 0 ? true : false;
     let cookieJson = JSON.parse(getCookieVal("battleship"));
     if (data[2] == "ready" && cookieJson.owner == 1) {
         document.getElementById("start-lobby-btn").disabled = false;
@@ -40,7 +40,7 @@ function setLoadedSettings(data) {
 }
 
 function redirectToGame(lobbyId) {
-    window.location.href = window.location.host + "projects/battleship/game/" + lobbyId;
+    window.location.href = "http://mhooge.com:5000/projects/battleship/game/" + lobbyId;
 }
 
 function startSetup() {
@@ -65,10 +65,8 @@ var lobbyIdInput = document.getElementById("lobby-id");
 let lobbyJson = getCookieVal("battleship");
 
 let urlSplit = window.location.pathname.split("/");
-if (lobbyJson != null) {
-        socket.emit("lobby_rejoin", lobbyJson);
-}
-else if (urlSplit[urlSplit.length-2] == "pvp") {
+
+if (urlSplit[urlSplit.length-2] == "pvp") {
     if (urlSplit[urlSplit.length-1] == "new") {
         window.history.pushState({}, null, urlSplit.slice(0, urlSplit.length-1).join("/"));
         if (socket.connected)
@@ -91,6 +89,9 @@ else if (urlSplit[urlSplit.length-2] == "pvp") {
         }
     }
 }
+else if (lobbyJson != null) {
+    socket.emit("lobby_rejoin", lobbyJson);
+}
 socket.on("setup_started", function(lobbyId) {
     redirectToGame(lobbyId);
 });
@@ -108,7 +109,6 @@ socket.on("lobby_ready_opp", function(jsonData) {
     let data = JSON.parse(jsonData);
     setCookieData(data.id, data.hash, 0);
     let eventMsg = "You joined the lobby.";
-    setLoadedSettings(data.settings);
     addToLog(eventMsg, "Event");
 });
 socket.on("lobby_ready_owner", function(msg) {

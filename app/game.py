@@ -36,14 +36,16 @@ def handler_player_move(json_data):
     turn = database.get_turn(data["id"])[0]
     if data["owner"] == turn:
         new_turn = 0 if turn == 1 else 1
-        hit = database.make_move(data["id"], new_turn, data["x"], data["y"])
+        hit, ship_sunk = database.make_move(data["id"], new_turn, data["x"], data["y"])
         winning_player = database.game_winner(data["id"], data["owner"])
         hit_str = " It was a hit!" if hit else ""
-        current_app.logger.info(f"Player {data['owner']} made a move at {data['x']}, {data['y']}.{hit_str}")
+        sunk_str = " The ship is sunk!" if ship_sunk is not None else ""
+        current_app.logger.info(f"Player {data['owner']} made a move at {data['x']}, {data['y']}.{hit_str}{sunk_str}")
         if winning_player != -1:
             current_app.logger.info(f"Player {winning_player} won!")
             database.change_lobby_setting(data["id"], "status", "ended")
         data["turn"] = new_turn
         data["hit"] = hit
+        data["sunk"] = [] if ship_sunk is None else ship_sunk
         data["winner"] = winning_player
         socket_io.emit("move_made", json.dumps(data))
