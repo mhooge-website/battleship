@@ -6,9 +6,12 @@
 {% endblock %}
 {% block content %}
 <h1>Public Lobbies</h1>
+<button id="refresh-list-btn" onclick="window.location.reload();">
+    <img src="{{ url_for('static', filename='img/repeat.png') }}">
+</button>
 <div id="lobbies-list">
     {% if not lobbies %}
-        <div>There are no public & active lobbies.</div>
+        <div id="no-lobbies">There are no public & active lobbies.</div>
     {% else %}
         <div class="lobby-list-elem list-header">
             <div class="lobby-name">Name</div>

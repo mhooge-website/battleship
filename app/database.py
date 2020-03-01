@@ -91,7 +91,6 @@ def get_grid_data(lobby_id, owner):
         sunk_ships = db.cursor().execute(query_sunk_ships, (lobby_id,)).fetchall()
         for i in range(len(ships)):
             is_sunk = False
-            current_app.logger.info(ships[i][3])
             for ship_id in sunk_ships:
                 if ships[i][3] == ship_id[0] and ships[i][2] == ship_id[1]:
                     is_sunk = True

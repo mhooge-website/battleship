@@ -3,6 +3,27 @@ body {
     color: white;
 }
 
+#main-title {
+    max-width: 90vw;
+    margin-top: 10vh;
+    margin-bottom: 5vh;
+    border-radius: 15px;
+}
+
+#logo-link {
+    text-align: center;
+    text-decoration: none !important;
+}
+
+#logo-link:visited {
+    color: white;
+}
+
+#logo-link > h1 {
+    margin-bottom: 10px;
+    font-size: 50px;
+}
+
 .hidden {
     display: none;
 }
@@ -32,7 +53,7 @@ body {
 }
 
 button {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     background-color: rgb(88, 151, 168);
     border-color: black;
 }

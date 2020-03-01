@@ -10,7 +10,6 @@
 {% endblock %}
 {% block content %}
 <div id="game-div">
-    <h1 id="header-title">{% if status == 'setup' %}Setup Phase{% else %}Battleship{% endif %}</h1>
     <div class="{% if p1_ready or status == 'underway' %}hidden{% else %}game-ships{% endif %}">
         <button class="ship-btn" data-ship_size="1" data-ship_id="ship-patrol">
             <img src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}">

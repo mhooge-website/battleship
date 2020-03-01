@@ -274,7 +274,6 @@ socket.on("move_made", function(jsonData) {
         swapTurns(data["turn"], owner, hitCoords, data["hit"], data["sunk"]);
 });
 socket.on("start_game", function(turn) {
-    document.getElementById("header-title").textContent = "Battleship";
     document.getElementById("status-self").classList.add("player-hide");
     initGame();
     disableBoard(document.getElementById("game-own-board"), true);
