@@ -3,20 +3,12 @@ function setCookieData(id, hash, owner) {
     document.cookie = "battleship=" + cookieData + ";path=/";
 }
 
-function removeLobbySession() {
-    document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
-}
-
 function updateSetting(setting, value) {
     let lobbyId = JSON.parse(getCookieVal("battleship")).id;
     let cookieData = JSON.parse(getCookieVal("battleship"));
     let obj = { setting: setting, value: value, lobby_id: lobbyId,
                 hash: cookieData.hash, owner: cookieData.owner };
     socket.emit("setting_changed", JSON.stringify(obj));
-}
-
-function removeLobbySession() {
-    socket.emit("delete_session", "delete")
 }
 
 function lobbyNameChanged() {

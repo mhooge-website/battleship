@@ -16,10 +16,6 @@
     min-width: 300px;
 }
 
-.darken {
-    background-color: rgb(0, 0, 0, 0.4);
-}
-
 #game-over-modal {
     display: none;
     position: absolute;
@@ -27,11 +23,12 @@
     height: 100vh;
     left: 0;
     top: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 #game-over-splash {
     border: solid black 3px;
+    text-align: center;
     border-radius: 5px;
     top: 20vh;
     position: absolute;
@@ -61,6 +58,10 @@
     display: none;
     width: 700px;
     max-width: 90vw;
+}
+
+#exit-button {
+    margin-top: 5px;
 }
 
 #game-own-board.board-disabled button {

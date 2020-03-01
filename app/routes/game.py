@@ -12,7 +12,7 @@ def join_game(lobby_id):
 
     lobby_data = database.get_lobby_data(lobby_id)
 
-    if lobby_data is not None:
+    if lobby_data[0] is not None:
         if lobby_data[0][2] == "ended":
             return render_template("game_over.html")
 

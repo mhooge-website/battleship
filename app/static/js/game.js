@@ -242,6 +242,7 @@ function initGame() {
 }
 
 function gameOver(winner) {
+    document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
     let modal = document.getElementById("game-over-modal");
     let headerName = "game-over-header-" + (winner ? "won" : "lost");
     let header = document.getElementById(headerName);

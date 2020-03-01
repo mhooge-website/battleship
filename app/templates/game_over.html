@@ -1,10 +1,12 @@
+{% import "return_button.html" as return_btn %}
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/shared.css') }}">
     </head>
     <body>
         <div id="error-div">
-            <h1>This game is concluded.</h1>
+            <h1>This game has concluded.</h1>
+            {{ return_btn.button('Return') }}
         </div>
     </body>
 </html>
