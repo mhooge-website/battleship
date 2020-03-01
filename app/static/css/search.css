@@ -41,6 +41,7 @@
 
 .list-header {
     border-top: solid white 1px;
+    font-weight: 600;
 }
 
 .lobby-status {
