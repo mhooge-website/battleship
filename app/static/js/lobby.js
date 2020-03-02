@@ -24,7 +24,10 @@ function checkPublicChanged() {
 function setLoadedSettings(data) {
     document.getElementById("lobby-id").textContent = data[0];
     document.getElementById("lobby-name").value = data[1];
-    document.getElementById("invite-only").checked = data[3] == 0 ? true : false;
+    if (data[3] == 0)
+        document.getElementById("invite-only").setAttribute("checked", "checked");
+    else
+        document.getElementById("invite-only").removeAttribute("checked");
     let cookieJson = JSON.parse(getCookieVal("battleship"));
     if (data[2] == "ready" && cookieJson.owner == 1) {
         document.getElementById("start-lobby-btn").disabled = false;
@@ -70,6 +73,9 @@ if (urlSplit[urlSplit.length-2] == "pvp") {
             });
         }
     }
+    else if (lobbyJson != null) {
+        socket.emit("lobby_rejoin", lobbyJson);
+    }
     else {
         if (socket.connected)
             socket.emit("lobby_full", urlSplit[urlSplit.length-1]);
@@ -80,9 +86,6 @@ if (urlSplit[urlSplit.length-2] == "pvp") {
             });
         }
     }
-}
-else if (lobbyJson != null) {
-    socket.emit("lobby_rejoin", lobbyJson);
 }
 socket.on("setup_started", function(lobbyId) {
     redirectToGame(lobbyId);

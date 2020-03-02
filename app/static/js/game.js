@@ -5,17 +5,16 @@ function getGridBtn(x, y, buttonArr) {
 function getShipCoords() {
     let coords = [];
     let buttons = document.getElementsByClassName("grid-button-self");
-    let sizesSeen = [0, 0, 0, 0];
     for (let i = 0; i < buttons.length; i++) {
         let btn = buttons.item(i);
         if (btn.classList.contains("placed-ship")) {
-            let size = Number.parseInt(btn.dataset["ship_size"]);
-            let num = Math.floor(sizesSeen[size-1] / size).toFixed(0);
-            let shipId = size + "_" + num;
-            sizesSeen[size-1] += 1;
+            let id = btn.dataset["ship_id"].split("-")[1];
+            let size = btn.dataset["ship_size"];
+            let shipId = size + "_" + id;
             coords.push({id: shipId, x: btn.dataset["x"], y: btn.dataset["y"]});
         }
     }
+    console.log(coords);
     return coords;
 }
 
@@ -189,7 +188,7 @@ function initSetup() {
                                 return;
                             }
                         }
-                        if (delta > 0 && startValue + shipSize > 9) {
+                        if (delta > 0 && startValue + shipSize > 8) {
                             startValue = 10 - shipSize;
                         }
                         else if (delta < 0 && currValue - shipSize < 0) {
