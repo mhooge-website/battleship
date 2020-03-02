@@ -7,14 +7,13 @@ game_page = Blueprint("game", __name__, template_folder="templates")
 
 @game_page.route('/<lobby_id>', methods=['GET'])
 def join_game(lobby_id):
-    if not shared.verify_user_cookie():
-        return shared.invalid_user()
-
     lobby_data = database.get_lobby_data(lobby_id)
 
     if lobby_data[0] is not None:
         if lobby_data[0][2] == "ended":
             return render_template("game_over.html")
+        if not shared.verify_user_cookie():
+            return shared.invalid_user()
 
         grid_data = [[(y, [(x, "") for x in range(10)]) for y in range(10)],
                      [(y, [(x, "") for x in range(10)]) for y in range(10)]]

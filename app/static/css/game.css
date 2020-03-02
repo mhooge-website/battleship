@@ -27,7 +27,6 @@
 }
 
 #game-over-splash {
-    border: solid black 3px;
     text-align: center;
     border-radius: 5px;
     top: 20vh;
@@ -55,6 +54,7 @@
 }
 
 #game-over-splash > img {
+    border: solid black 2px;
     display: none;
     width: 700px;
     max-width: 90vw;
