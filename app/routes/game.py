@@ -5,6 +5,13 @@ from app import shared
 
 game_page = Blueprint("game", __name__, template_folder="templates")
 
+@game_page.route('/pvai')
+def create_vs_ai():
+    grid_data = [[(y, [(x, "") for x in range(10)]) for y in range(10)],
+                 [(y, [(x, "") for x in range(10)]) for y in range(10)]]
+    return render_template("game.html", p1_ready=False, p2_ready=False, turn=0,
+                           status="setup", grid_data=grid_data, game_type="pvai")
+
 @game_page.route('/<lobby_id>', methods=['GET'])
 def join_game(lobby_id):
     lobby_data = database.get_lobby_data(lobby_id)
@@ -55,5 +62,6 @@ def join_game(lobby_id):
         player_turn = game_data[5] == owner
 
         return render_template("game.html", p1_ready=self_ready, p2_ready=other_ready,
-                            turn=player_turn, status=lobby_data[0][2], grid_data=grid_data)
+                               turn=player_turn, status=lobby_data[0][2],
+                               grid_data=grid_data, game_type="pvp")
     return shared.invalid_lobby()

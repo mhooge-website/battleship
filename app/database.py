@@ -14,7 +14,7 @@ def get_connection():
 
 def create_lobby(lobby_id):
     with closing(get_connection()) as db:
-        db.cursor().execute("INSERT INTO lobbies(id) VALUES (?)", (lobby_id,))
+        db.cursor().execute("INSERT INTO lobbies(id, dt) VALUES (?, CURRENT_TIMESTAMP)", (lobby_id,))
         db.commit()
 
 def create_game(lobby_id, start_turn):
@@ -23,7 +23,7 @@ def create_game(lobby_id, start_turn):
         db.commit()
 
 def valid_id(lobby_id):
-    return get_lobby_data(lobby_id) is not None
+    return get_lobby_data(lobby_id)[0] is not None
 
 def get_lobby_data(lobby_id):
     with closing(get_connection()) as db:
@@ -37,7 +37,7 @@ def get_game_data(lobby_id):
 
 def get_public_lobbies():
     with closing(get_connection()) as db:
-        return db.cursor().execute("SELECT id, name, status FROM lobbies WHERE public=1").fetchall()
+        return db.cursor().execute("SELECT id, name, status FROM lobbies WHERE public=1 ORDER BY dt DESC").fetchall()
 
 def change_lobby_setting(lobby_id, setting, value):
     with closing(get_connection()) as db:

@@ -80,7 +80,7 @@
 .grid-button-self, .grid-button-opp {
     background-color: rgb(59, 96, 197);
     width: 8%;
-    height: 8%;
+    height: 8vh;
     max-width: 30px;
     max-height: 30px;
     margin: 2px 1px;

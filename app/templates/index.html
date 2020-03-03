@@ -12,10 +12,10 @@
                 <button>Find game</button>
             </a>
             <div id="game-type">
-                <a href="{{ url_for('lobby.new_lobby') }}">
+                <a href="{{ url_for('lobby.new_pvp') }}">
                     <button>VS. Player</button>
                 </a>
-                <a href="/lobby/pvai">
+                <a href="{{ url_for('lobby.new_pvai')}}">
                     <button>VS. AI</button>
                 </a>
             </div>

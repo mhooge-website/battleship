@@ -1,8 +1,9 @@
-CREATE TABLE [lobbies] ( 
+CREATE TABLE [lobbies] (
 	[id] NVARCHAR(64) NOT NULL PRIMARY KEY,
 	[name] NVARCHAR(50) NOT NULL DEFAULT('Battleship Lobby'),
     [status] NVARCHAR(10) NOT NULL DEFAULT('pending') CHECK(status = 'pending' or status = 'ready' or status = 'setup'  or status = 'underway' or status = 'ended'),
-    [public] INTEGER DEFAULT(0)
+    [public] INTEGER DEFAULT(0),
+    [dt] TEXT NOT NULL
 );
 CREATE TABLE [games] (
     [id] NVARCHAR(64) NOT NULL PRIMARY KEY,

@@ -14,7 +14,6 @@ function getShipCoords() {
             coords.push({id: shipId, x: btn.dataset["x"], y: btn.dataset["y"]});
         }
     }
-    console.log(coords);
     return coords;
 }
 
@@ -251,8 +250,6 @@ function gameOver(winner) {
     splash.style.display = "block";
     modal.style.display = "block";
 }
-
-socket.emit("player_joined", getCookieVal("battleship"));
 
 socket.on("chat_loaded", function(jsonData) {
     let data = JSON.parse(jsonData);

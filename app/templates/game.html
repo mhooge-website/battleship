@@ -96,6 +96,11 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% if game_type == 'pvp' %}
+<script>
+    socket.emit("player_joined", getCookieVal("battleship"));
+</script>
+{% endif %}
 {% if status == 'setup' %}
     <script>initSetup();</script>
 {% else %}
