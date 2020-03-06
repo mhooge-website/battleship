@@ -11,7 +11,7 @@
 {% block content %}
 <div id="game-div">
     <div class="{% if p1_ready or status == 'underway' %}hidden{% else %}game-ships{% endif %}">
-        <button class="ship-btn" data-ship_size="1" data-ship_id="ship-patrol">
+        <button class="ship-btn" data-ship_size="2" data-ship_id="ship-patrol">
             <img src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}">
         </button>
         <button class="ship-btn" data-ship_size="2" data-ship_id="ship-cruiser">
@@ -89,7 +89,7 @@
     <div id="game-over-splash">
         <img id="splash-won" src="{{ url_for('static', filename='img/victory.jpg') }}">
         <img id="splash-lost" src="{{ url_for('static', filename='img/defeat.jpg') }}">
-        {{ return_btn.button('Exit') }}
+        <button onclick="closeGameOverModal();">Close</button>
     </div>
 </div>
 
@@ -97,8 +97,13 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% if game_type == 'pvp' %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/ai.js') }}"></script>
 <script>
     socket.emit("player_joined", getCookieVal("battleship"));
+</script>
+{% else %}
+<script>
+    socket.emit("ai_init", "whew");
 </script>
 {% endif %}
 {% if status == 'setup' %}

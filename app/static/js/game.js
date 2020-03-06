@@ -27,7 +27,7 @@ function markAsReady() {
 }
 
 function allShipsPlaced() {
-    return document.getElementsByClassName("placed-ship").length == 13;
+    return document.getElementsByClassName("placed-ship").length == 14;
 }
 
 function setPlayerStatus(self, status, setup=false) {
@@ -190,7 +190,7 @@ function initSetup() {
                         if (delta > 0 && startValue + shipSize > 8) {
                             startValue = 10 - shipSize;
                         }
-                        else if (delta < 0 && currValue - shipSize < 0) {
+                        else if (delta < 0 && startValue - shipSize < 0) {
                             startValue = shipSize-1;
                         }
                         for (let i = 0; i < shipSize; i++) {
@@ -239,7 +239,15 @@ function initGame() {
     }
 }
 
-function gameOver(winner) {
+function gameOver(winner, enemyShips) {
+    for (let i = 0; i < enemyShips.length; i++) {
+        let ship = enemyShips[i];
+        let btn = getButton(ship[0], ship[1], false);
+        if (!btn.classList.contains("hit-ship") && !btn.classList.contains("sunk-ship")) {
+            btn.classList.add("placed-ship");
+        }
+    }
+
     document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
     let modal = document.getElementById("game-over-modal");
     let headerName = "game-over-header-" + (winner ? "won" : "lost");
@@ -249,6 +257,15 @@ function gameOver(winner) {
     header.style.display = "block";
     splash.style.display = "block";
     modal.style.display = "block";
+    let actionBtn = document.getElementById("player-action-btn");
+    actionBtn.textContent = "Exit"
+    actionBtn.onclick = function() {
+        window.location.href = getBaseURL();
+    }
+}
+
+function closeGameOverModal() {
+    document.getElementById("game-over-modal").style.display = "none";
 }
 
 socket.on("chat_loaded", function(jsonData) {
@@ -261,10 +278,10 @@ socket.on("move_made", function(jsonData) {
     let owner = JSON.parse(getCookieVal("battleship")).owner;
     if (data["winner"] != -1) {
         if (data["winner"] == owner) {
-            gameOver(true); // We won!
+            gameOver(true, data["opp_ships"]); // We won!
         }
         else {
-            gameOver(false);
+            gameOver(false, data["opp_ships"]);
         }
     }
     else

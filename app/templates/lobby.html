@@ -14,6 +14,10 @@
     <div class="lobby-option">Name: <input id="lobby-name" value="Battleship Lobby" disabled onchange="lobbyNameChanged();"></div>
     <div class="lobby-option">Lobby ID: <span id="lobby-id">{{ lobby_id }}</span></div>
     <div class="lobby-option">Invite Only: <input id="invite-only" type="checkbox" checked disabled onchange="checkPublicChanged();"></div>
+    <div class="lobby-option">
+        Lobby URL: <input id="lobby-url" type="text" readonly value="{{ url_for('lobby.join_lobby', lobby_type='pvp', lobby_id=lobby_id) }}">
+        <button id="copy-lobby-url" onclick="copyURL();">Copy</button>
+    </div>
 </div>
 
 <button id="start-lobby-btn" onclick="startSetup();" disabled>Start</button>

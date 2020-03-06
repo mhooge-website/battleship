@@ -25,7 +25,8 @@
                 <div class="lobby-id">{{ id }}</div>
                 <div class="lobby-status status-{{status}}">{{ status }}</div>
                 {% if (status != 'ended' and id == active_lobby) or status == 'pending' %}
-                    <a href="{% if id == active_lobby %}{{ url_for('game.join_game', lobby_id=id) }}{% else %}{{ url_for('lobby.join_lobby', lobby_id=id) }}{% endif %}">
+                    <a href="{% if id == active_lobby %}{{ url_for('game.join_game', lobby_id=id) }}
+                            {% else %}{{ url_for('lobby.join_new_lobby', lobby_id=id) }}{% endif %}">
                         <button class="join-button">
                             {% if id == active_lobby %}Rejoin{% else %}Join{% endif %}
                         </button>

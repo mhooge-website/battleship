@@ -22,6 +22,7 @@ def handle_message(message):
         encrypted = shared.encrypt_lobby_id(lobby_id, 1)
         json_data = json.dumps({"id": lobby_id, "hash": encrypted})
         join_room(shared.get_room(lobby_id, 1))
+        join_room(lobby_id)
         socket_io.emit("lobby_created", json_data, room=shared.get_room(lobby_id, 1))
         current_app.logger.info("Created lobby. ID: " + lobby_id)
     except IOError:
@@ -31,9 +32,11 @@ def handle_message(message):
 def handle_rejoin(json_data):
     data = json.loads(json_data)
     join_room(shared.get_room(data["id"], data["owner"]))
+    join_room(data["id"])
     current_app.logger.info("Trying to rejoin " + data["id"] + " owner: " + str(data["owner"]))
     if shared.encrypt_lobby_id(data["id"], data["owner"]) == data["hash"]:
         handle_join(data["id"], data["owner"])
+        socket_io.emit("opp_rejoin", "Rejoin", room=shared.other_room(data["id"], data["owner"]))
 
 def handle_join(lobby_id, owner):
     data = database.get_lobby_data(lobby_id)
@@ -51,6 +54,7 @@ def handle_lobby_full(lobby_id):
     current_app.logger.info("Lobby is full: " + lobby_id)
     change_setting(lobby_id, "status", "ready")
     handle_join(lobby_id, 0)
+    join_room(lobby_id)
     join_room(shared.get_room(lobby_id, 0))
     encrypted = shared.encrypt_lobby_id(lobby_id, 0)
     json_data = json.dumps({"id": lobby_id, "hash": encrypted})
@@ -81,3 +85,9 @@ def handle_chat_message(json_data):
     database.add_chat_msg(data["id"], data["msg"], data["owner"])
     socket_io.emit("message_received", data["msg"],
                     room=shared.other_room(data["id"], data["owner"]))
+
+@socket_io.on("disconnected")
+def handle_disconnect(json_data):
+    data = json.loads(json_data)
+    current_app.logger.info("Player disconnected")
+    socket_io.emit("opp_disconnect", "Disconnect", room=shared.other_room(data["id"], data["owner"]))

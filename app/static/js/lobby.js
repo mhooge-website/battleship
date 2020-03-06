@@ -23,6 +23,7 @@ function checkPublicChanged() {
 
 function setLoadedSettings(data) {
     document.getElementById("lobby-id").textContent = data[0];
+    document.getElementById("lobby-url").value = getBaseURL() + "/lobby/pvp/" + data[0];
     document.getElementById("lobby-name").value = data[1];
     if (data[3] == 0)
         document.getElementById("invite-only").setAttribute("checked", "checked");
@@ -32,6 +33,12 @@ function setLoadedSettings(data) {
     if (data[2] == "ready" && cookieJson.owner == 1) {
         document.getElementById("start-lobby-btn").disabled = false;
     }
+}
+
+function copyURL() {
+    document.getElementById("lobby-url").focus();
+    document.getElementById("lobby-url").select();
+    document.execCommand("copy");
 }
 
 function redirectToGame(lobbyId) {
@@ -56,14 +63,14 @@ function enableSettings() {
     document.getElementById("invite-only").disabled = false;
 }
 
-var lobbyIdInput = document.getElementById("lobby-id");
 let lobbyJson = getCookieVal("battleship");
 
 let urlSplit = window.location.pathname.split("/");
+let len = urlSplit.length;
 
-if (urlSplit[urlSplit.length-2] == "pvp") {
-    if (urlSplit[urlSplit.length-1] == "new") {
-        window.history.pushState({}, null, urlSplit.slice(0, urlSplit.length-1).join("/"));
+if (urlSplit[len-2] == "pvp" || urlSplit[len-1] == "pvp") {
+    if (urlSplit[len-1] == "new") {
+        window.history.pushState({}, null, urlSplit.slice(0, len-1).join("/"));
         if (socket.connected)
             socket.emit("lobby_pvp", "yes");
         else {
@@ -78,10 +85,10 @@ if (urlSplit[urlSplit.length-2] == "pvp") {
     }
     else {
         if (socket.connected)
-            socket.emit("lobby_full", urlSplit[urlSplit.length-1]);
+            socket.emit("lobby_full", urlSplit[len-1]);
         else {
             socket.on("connect", function() {
-                socket.emit("lobby_full", urlSplit[urlSplit.length-1]);
+                socket.emit("lobby_full", urlSplit[len-1]);
                 socket.off("connect");
             });
         }
@@ -126,7 +133,19 @@ socket.on("lobby_joined", function(jsonData) {
 });
 socket.on("lobby_created", function(jsonData) {
     let data = JSON.parse(jsonData);
-    lobbyIdInput.textContent = data.id;
+    document.getElementById("lobby-id").textContent = data.id;
+    document.getElementById("lobby-url").value = getBaseURL() + "/lobby/pvp/" + data.id;
     setCookieData(data.id, data.hash, 1);
     enableSettings();
 });
+socket.on("opp_rejoin", function(msg) {
+    addToLog("Opponent rejoined the lobby.", "Event")
+});
+socket.on("opp_disconnect", function(msg) {
+    addToLog("Opponent disconnected from the lobby.", "Event")
+});
+window.onbeforeunload = function() {
+    let data = getCookieVal("battleship");
+    socket.emit("disconnected", data);
+    return null;
+}

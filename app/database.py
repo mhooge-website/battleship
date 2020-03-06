@@ -138,9 +138,17 @@ def game_winner(lobby_id, player):
                  "shots.x = ship_parts.x AND shots.y = ship_parts.y AND " +
                  "shots.owner != ship_parts.owner AND shots.owner=?")
         hits = db.cursor().execute(query, (lobby_id, player)).fetchone()
-        if hits is None or hits[0] < 13:
+        if hits is None or hits[0] < 14:
             return -1
         return player
+
+def get_best_spots():
+    with closing(get_connection()) as db:
+        query = "SELECT x, y, Count(*) as c FROM shots GROUP BY x, y ORDER BY c ASC"
+        shots_freq = db.cursor().execute(query).fetchall()
+        query = "SELECT x, y, Count(*), ship_id as c FROM ship_parts GROUP BY x, y ORDER BY c"
+        ships_freq = db.cursor().execute(query).fetchall()
+        return ships_freq, shots_freq
 
 def init_db():
     if not os.path.exists(current_app.config["DATABASE"]):

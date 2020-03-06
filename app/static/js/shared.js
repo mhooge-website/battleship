@@ -8,3 +8,7 @@ function getCookieVal(key) {
     }
     return null;
 }
+
+function getBaseURL() {
+    return "http://mhooge.com:5000/projects/battleship";
+}

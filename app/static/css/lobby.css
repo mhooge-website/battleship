@@ -1,3 +1,14 @@
 .inner {
     width: 350px;
 }
+
+#lobby-url {
+    display: inline-block;
+    margin-right: 5px;
+    width: 170px;
+}
+
+#copy-lobby-url {
+    font-size: 17px;
+    padding-bottom: 3px;
+}
