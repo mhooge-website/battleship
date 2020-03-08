@@ -14,11 +14,30 @@ def create_vs_ai():
 
 @game_page.route('/<lobby_id>', methods=['GET'])
 def join_game(lobby_id):
+    if lobby_id == "test123":
+        grid_data = [[(y, [(x, "") for x in range(10)]) for y in range(10)],
+                     [(y, [(x, "") for x in range(10)]) for y in range(10)]]
+        grid_data[0][2][1][0] = (0, "placed-ship ship-submarine")
+        grid_data[0][3][1][0] = (0, "placed-ship ship-submarine")
+        grid_data[0][4][1][0] = (0, "placed-ship ship-submarine")
+        grid_data[0][2][1][1] = (1, "placed-ship ship-battleship")
+        grid_data[0][3][1][1] = (1, "placed-ship ship-battleship")
+        grid_data[0][4][1][1] = (1, "placed-ship ship-battleship")
+        grid_data[0][6][1][3] = (3, "placed-ship ship-aircraft")
+        grid_data[0][6][1][4] = (4, "placed-ship ship-aircraft")
+        grid_data[0][6][1][5] = (5, "placed-ship ship-aircraft")
+        grid_data[0][6][1][6] = (6, "placed-ship ship-aircraft")
+        grid_data[0][2][1][3] = (3, "placed-ship ship-cruiser")
+        grid_data[0][3][1][3] = (3, "placed-ship ship-cruiser")
+        grid_data[0][2][1][4] = (4, "placed-ship ship-patrol")
+        grid_data[0][3][1][4] = (4, "placed-ship ship-patrol")
+        return render_template("game.html", p1_ready=True, p2_ready=True,
+                               turn=1, status="underway",
+                               grid_data=grid_data, game_type="pvp")
+
     lobby_data = database.get_lobby_data(lobby_id)
 
     if lobby_data[0] is not None:
-        if lobby_data[0][2] == "ended":
-            return render_template("game_over.html")
         if not shared.verify_user_cookie():
             return shared.invalid_user()
 
@@ -41,7 +60,7 @@ def join_game(lobby_id):
             val = "shot-missed"
             grid_data[player][shot_y][1][shot_x] = (shot_x, val)
 
-        for ship_x, ship_y, ship_owner, _, sunk in ship_data:
+        for ship_x, ship_y, ship_owner, ship_id, sunk in ship_data:
             shot_at_opp = shots_self[ship_y][ship_x]
             shot_at_self = shots_opp[ship_y][ship_x]
             if ship_owner == owner:
@@ -50,12 +69,14 @@ def join_game(lobby_id):
                 elif shot_at_self:
                     grid_data[0][ship_y][1][ship_x] = (ship_x, "hit-ship")
                 else:
-                    grid_data[0][ship_y][1][ship_x] = (ship_x, "placed-ship")
+                    grid_data[0][ship_y][1][ship_x] = (ship_x, "placed-ship " + ship_id)
             else:
                 if sunk:
                     grid_data[1][ship_y][1][ship_x] = (ship_x, "sunk-ship")
                 elif shot_at_opp:
                     grid_data[1][ship_y][1][ship_x] = (ship_x, "hit-ship")
+                elif lobby_data[0][2] == "ended": # If game is over, we show the enemy board.
+                    grid_data[1][ship_y][1][ship_x] = (ship_x, "placed-ship " + ship_id)
 
         self_ready = game_data[2 - owner] == 1
         other_ready = game_data[owner+1] == 1

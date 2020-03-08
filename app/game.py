@@ -46,7 +46,11 @@ def handler_player_move(json_data):
             if winning_player != -1:
                 current_app.logger.info(f"Player {winning_player} won!")
                 database.change_lobby_setting(data["id"], "status", "ended")
-                data["opp_ships"] = database.get_grid_data(data["id"], new_turn)[0]
+                ships = database.get_grid_data(data["id"], None)[0]
+                owner_ships = filter(lambda x: x[2] == data["owner"], ships)
+                other_ships = filter(lambda x: x[2] != data["owner"], ships)
+                data["owner_ships"] = owner_ships
+                data["opp_ships"] = other_ships
             data["turn"] = new_turn
             data["hit"] = hit
             data["sunk"] = [] if ship_sunk is None else ship_sunk

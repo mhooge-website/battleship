@@ -3,6 +3,15 @@
     flex-basis: 76vh;
 }
 
+#canvas {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
 #game-boards-wrapper {
     width: 800px;
     max-width: 95vw;
@@ -12,7 +21,6 @@
 .game-board {
     display: inline-block;
     margin: 10px;
-    width: 45%;
     min-width: 300px;
 }
 
@@ -64,26 +72,39 @@
     margin-top: 5px;
 }
 
+.grid-row {
+    border-left: black 2px solid;
+    border-right: black 2px solid;
+    margin-top: 2px;
+}
+
+.grid-row:first-of-type {
+    border-top: black 2px solid;
+    margin-top: 0;
+}
+
+.grid-row:last-of-type {
+    border-bottom: black 2px solid;
+}
+
 #game-own-board.board-disabled button {
-    background-color: rgba(39, 179, 179, 0.829);
+    background-color: rgba(41, 93, 159, 0.89);
 }
 
 #game-enemy-board.board-disabled button {
     background-color: gray;
 }
 
-.grid-row {
-    display: inline-block;
-    width: 100%;
+.grid-button-self {
+    border: none;
 }
 
 .grid-button-self, .grid-button-opp {
     background-color: rgb(59, 96, 197);
-    width: 8%;
-    height: 8vh;
+    width: 30px;
+    height: 30px;
     max-width: 30px;
     max-height: 30px;
-    margin: 2px 1px;
 }
 
 #status-opponent, #status-self {
@@ -116,7 +137,8 @@
 }
 
 .placed-ship {
-    background-color: rgb(218, 156, 105) !important;
+    border: none !important;
+    background-color: #4c79ff !important;
 }
 
 .grid-button-self.hit-ship {

@@ -1,5 +1,13 @@
+let split = window.location.href.split("/");
+const DEBUG = split[split.length-1] == "test123";
+
 function getGridBtn(x, y, buttonArr) {
     return buttonArr[y * 10 + x];
+}
+
+function socketSend(event, data) {
+    if (!DEBUG)
+        socket.emit(event, data);
 }
 
 function getShipCoords() {
@@ -23,7 +31,7 @@ function markAsReady() {
     document.getElementById("player-action-btn").disabled = true;
     data["ships"] = ships;
     setPlayerStatus(true, "Ready", true);
-    socket.emit("player_ready", JSON.stringify(data));
+    socketSend("player_ready", JSON.stringify(data));
 }
 
 function allShipsPlaced() {
@@ -71,6 +79,18 @@ function getButton(x, y, ownBoard) {
     return null;
 }
 
+function getAbsoluteCoords(x, y, ownBoard) {
+    let btnName = ownBoard ? "grid-button-self" : "grid-button-opp";
+    let boardName = ownBoard ? "game-own-board" : "game-enemy-board";
+    let board = document.getElementById(boardName);
+    let btn = document.getElementsByClassName(btnName).item(0);
+    let buttonWidth = btn.getBoundingClientRect().width + 4;
+    let buttonHeight = btn.getBoundingClientRect().height + 2;
+    let screenX = board.getBoundingClientRect().x + (buttonWidth/2) + (buttonWidth * x);
+    let screenY = board.getBoundingClientRect().y + (buttonHeight/2) + (buttonHeight * y);
+    return {x: screenX, y: screenY};
+}
+
 function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
     let affectedBoard = null;
     if (owner == turn) {
@@ -115,12 +135,72 @@ function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
     }
 }
 
+function shuffle(arr) {
+    var j, x, i;
+    for (i = arr.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = arr[i];
+        arr[i] = arr[j];
+        arr[j] = x;
+    }
+}
+
+function getRandomActiveShip() {
+    let buttons = Array.prototype.slice.call(document.getElementsByClassName("grid-button-self"));
+    shuffle(buttons);
+    for (let i = 0; i < buttons.length; i++) {
+        let btn = buttons[i];
+        if (btn.classList.contains("placed-ship") &&
+            !btn.classList.contains("hit-ship") &&
+            !btn.classList.contains("sunk-ship")) {
+            return btn;
+        }
+    }
+}
+
 function makeMove() {
     let selected = document.getElementsByClassName("selected-grid").item(0);
     let cookieData = JSON.parse(getCookieVal("battleship"));
-    cookieData["x"] = Number.parseInt(selected.dataset["x"]);
-    cookieData["y"] = Number.parseInt(selected.dataset["y"]);
-    socket.emit("player_move", JSON.stringify(cookieData));
+    let ship = getRandomActiveShip();
+    let sourceCoords = getAbsoluteCoords(Number.parseInt(ship.dataset["x"]), Number.parseInt(ship.dataset["y"]), true);
+    let destCoords = getAbsoluteCoords(Number.parseInt(selected.dataset["x"]), Number.parseInt(selected.dataset["y"]), false);
+    drawTracer(sourceCoords.x, sourceCoords.y, destCoords.x, destCoords.y, 500);
+
+    if (cookieData != null) {
+        cookieData["x"] = Number.parseInt(selected.dataset["x"]);
+        cookieData["y"] = Number.parseInt(selected.dataset["y"]);
+        socketSend("player_move", JSON.stringify(cookieData));
+    }
+}
+
+function setButtonImg(shipId, ownBoard) {
+    let btnName = ownBoard ? "grid-button-self" : "grid-button-opp";
+    let buttons = document.getElementsByClassName(btnName + " placed-ship " + shipId);
+    let horizontal = (Number.parseInt(buttons.item(0).dataset["x"]) !=
+                      Number.parseInt(buttons.item(1).dataset["x"]))
+    let alignStr = horizontal ? "horizontal" : "vertical";
+    let url = "/static/img/" + shipId + "_" + alignStr + ".png";
+    let offsets = {
+        "ship-patrol": 45,
+        "ship-cruiser": 45,
+        "ship-battleship": 39,
+        "ship-submarine": 28,
+        "ship-aircraft": 26
+    }
+    for (let i = 0; i < buttons.length; i++) {
+        let btn = buttons.item(i);
+        btn.style.backgroundImage = "url(" + url + ")";
+        if (horizontal) {
+            btn.style.backgroundPositionX = "-" + (i*offsets[shipId]) + "px";
+            btn.style.backgroundPositionY = "-1px";
+            btn.style.backgroundSize = "cover";
+        }
+        else {
+            btn.style.backgroundPositionY = "-" + (i*offsets[shipId]) + "px";
+            btn.style.backgroundPositionX = "-1px";
+            btn.style.backgroundSize = "cover";
+        }
+    }
 }
 
 function initSetup() {
@@ -156,11 +236,25 @@ function initSetup() {
         btn.onclick = function() {
             let startBtn = document.getElementsByClassName("selected-grid");
             let selectedShip = document.getElementsByClassName("selected-ship");
-            if (btn.classList.contains("placed-ships")) { // Removed placed ship.
-                let buttons = document.getElementsByClassName("ship-btn");
+            if (btn.classList.contains("placed-ship")) { // Removed placed ship.
+                let shipBtns = document.getElementsByClassName("ship-btn");
+                for (let i = 0; i < shipBtns.length; i++) {
+                    if (btn.dataset["ship_id"] == shipBtns.item(i).dataset["ship_id"]) {
+                        shipBtns.item(i).disabled = false;
+                    }
+                }
+                let buttons = document.getElementsByClassName(btn.dataset["ship_id"]);
+                let copyArr = [];
                 for (let i = 0; i < buttons.length; i++) {
-                    buttons.item(i).classList.remove("placed-ship");
-                    buttons.item(i).classList.remove(selectedShip.dataset["ship_id"]);
+                    let affectedBtn = buttons.item(i);
+                    affectedBtn.classList.remove("placed-ship");
+                    affectedBtn.removeAttribute("data-ship_id");
+                    affectedBtn.removeAttribute("data-ship_size");
+                    affectedBtn.style.backgroundImage = "none";
+                    copyArr.push(affectedBtn);
+                }
+                for (let i = 0; i < copyArr.length; i++) {
+                    copyArr[i].classList.remove(btn.dataset["ship_id"]);
                 }
             }
             else if (selectedShip.length == 1) {
@@ -182,12 +276,14 @@ function initSetup() {
                             let pos = startValue + (i * delta);
                             let affectedBtn = (horizontal ? getGridBtn(pos, staticValue, buttonArr)
                                                           : getGridBtn(staticValue, pos, buttonArr));
+                            if (affectedBtn == null)
+                                continue;
                             if (affectedBtn.classList.contains("placed-ship")) {
                                 startBtn.classList.remove("selected-grid");
                                 return;
                             }
                         }
-                        if (delta > 0 && startValue + shipSize > 8) {
+                        if (delta > 0 && startValue + shipSize > 9) {
                             startValue = 10 - shipSize;
                         }
                         else if (delta < 0 && startValue - shipSize < 0) {
@@ -204,7 +300,8 @@ function initSetup() {
                         startBtn.classList.remove("selected-grid");
                         selectedShip.disabled = true;
                         selectedShip.classList.remove("selected-ship");
-    
+                        
+                        setButtonImg(selectedShip.dataset["ship_id"], true);
                         if (allShipsPlaced()) {
                             document.getElementById("player-action-btn").disabled = false;
                         }
@@ -225,6 +322,10 @@ function initGame() {
     for (let i = 0; i < disabledBoards.length; i++) {
         disableBoard(disabledBoards.item(i), true);
     }
+    let shipIds = ["ship-patrol", "ship-cruiser", "ship-battleship", "ship-submarine", "ship-aircraft"];
+    for (let i = 0; i < shipIds.length; i++) {
+        setButtonImg(shipIds[i], true);
+    }
     for (let i = 0; i < oppGridBtns.length; i++) {
         let btn = oppGridBtns.item(i);
         if (btn.classList.contains("shot-missed") || btn.classList.contains("hit-ship"))
@@ -237,6 +338,10 @@ function initGame() {
             btn.classList.add("selected-grid");
         }
     }
+    let canvas = document.getElementById("canvas");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    setHelperContext(canvas.getContext("2d"));
 }
 
 function gameOver(winner, enemyShips) {
@@ -247,8 +352,8 @@ function gameOver(winner, enemyShips) {
             btn.classList.add("placed-ship");
         }
     }
-
-    document.cookie = "battleship=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
+    disableBoard("game-own-board", true);
+    disableBoard("game-enemy-board", true);
     let modal = document.getElementById("game-over-modal");
     let headerName = "game-over-header-" + (winner ? "won" : "lost");
     let header = document.getElementById(headerName);
@@ -276,16 +381,16 @@ socket.on("move_made", function(jsonData) {
     let data = JSON.parse(jsonData);
     let hitCoords = {x: data["x"], y: data["y"]};
     let owner = JSON.parse(getCookieVal("battleship")).owner;
+    swapTurns(data["turn"], owner, hitCoords, data["hit"], data["sunk"]);
     if (data["winner"] != -1) {
+        let oppShips = owner == 1 ? data["opp_ships"] : data["owner_ships"];
         if (data["winner"] == owner) {
-            gameOver(true, data["opp_ships"]); // We won!
+            gameOver(true, oppShips); // We won!
         }
         else {
-            gameOver(false, data["opp_ships"]);
+            gameOver(false, oppShips);
         }
     }
-    else
-        swapTurns(data["turn"], owner, hitCoords, data["hit"], data["sunk"]);
 });
 socket.on("start_game", function(turn) {
     document.getElementById("status-self").classList.add("player-hide");

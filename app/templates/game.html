@@ -9,26 +9,27 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/game.css') }}">
 {% endblock %}
 {% block content %}
+{% import "return_button.html" as return_btn %}
 <div id="game-div">
     <div class="{% if p1_ready or status == 'underway' %}hidden{% else %}game-ships{% endif %}">
         <button class="ship-btn" data-ship_size="2" data-ship_id="ship-patrol">
-            <img src="{{ url_for('static', filename='img/PatrolBoat_horizontal.png') }}">
+            <img src="{{ url_for('static', filename='img/ship-patrol_horizontal.png') }}">
         </button>
         <button class="ship-btn" data-ship_size="2" data-ship_id="ship-cruiser">
-            <img src="{{ url_for('static', filename='img/Cruiser_horizontal.png') }}">
+            <img src="{{ url_for('static', filename='img/ship-cruiser_horizontal.png') }}">
         </button>
         <button class="ship-btn" data-ship_size="3" data-ship_id="ship-battleship">
-            <img src="{{ url_for('static', filename='img/BattleShip_horizontal.png') }}">
+            <img src="{{ url_for('static', filename='img/ship-battleship_horizontal.png') }}">
         </button>
         <button class="ship-btn" data-ship_size="3" data-ship_id="ship-submarine">
-            <img src="{{ url_for('static', filename='img/Submarine_horizontal.png') }}">
+            <img src="{{ url_for('static', filename='img/ship-submarine_horizontal.png') }}">
         </button>
         <button class="ship-btn" data-ship_size="4" data-ship_id="ship-aircraft">
-            <img src="{{ url_for('static', filename='img/AircraftCarrier_horizontal.png') }}">
+            <img src="{{ url_for('static', filename='img/ship-aircraft_horizontal.png') }}">
         </button>
     </div>
     <div id="game-boards-wrapper">
-        <div id="game-own-board" class="game-board {% if status == 'underway' %}board-disabled{% endif %}">
+        <div id="game-own-board" class="game-board {% if status != 'setup' %}board-disabled{% endif %}">
             {% for y, row in grid_data[0] %}
                 <div class="grid-row">
                 {% for x, grid in row %}
@@ -48,7 +49,7 @@
                 </p>
             {% endif %}
         </div>
-        <div id="game-enemy-board" class="game-board {% if status == 'setup' or not turn %}board-disabled{% endif %}">
+        <div id="game-enemy-board" class="game-board {% if status in ('setup', 'ended') or not turn %}board-disabled{% endif %}">
             {% for y, row in grid_data[1] %}
                 <div class="grid-row">
                 {% for x, grid in row %}
@@ -73,16 +74,23 @@
             {% endif %}
         </div>
     </div>
-    <button id="player-action-btn" {% if not turn or status == 'setup' %}disabled="disabled"{% endif %} onclick="{% if status == 'setup' %}markAsReady();{% else %}makeMove();{% endif %}">
+    {% if status == 'ended' %}
+        {{ return_btn.button('Exit') }}
+    {% else %}
+    <button id="player-action-btn" {% if not turn or status == 'setup' %}disabled="disabled"{% endif %}
+            onclick="{% if status == 'setup' %}markAsReady();{% elif status == 'underway' %}makeMove();{% endif %}">
         {% if status == 'setup' %}Ready{% else %}Fire!{% endif %}
     </button>
+    {% endif %}
 </div>
 
 {% include "chat.html" %}
 
 {% endblock %}
+
 {% block scripts %}
-{% import "return_button.html" as return_btn %}
+<canvas id="canvas"></canvas>
+
 <div id="game-over-modal">
     <h1 id="game-over-header-won">Victory!</h1>
     <h1 id="game-over-header-lost">Defeat!</h1>
@@ -95,6 +103,8 @@
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/shared.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/canvashelper.js') }} "></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/animate.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% if game_type == 'pvp' %}
 <script type="text/javascript" src="{{ url_for('static', filename='js/ai.js') }}"></script>
