@@ -164,6 +164,7 @@ function makeMove() {
     let ship = getRandomActiveShip();
     let sourceCoords = getAbsoluteCoords(Number.parseInt(ship.dataset["x"]), Number.parseInt(ship.dataset["y"]), true);
     let destCoords = getAbsoluteCoords(Number.parseInt(selected.dataset["x"]), Number.parseInt(selected.dataset["y"]), false);
+    drawMuzzle(sourceCoords.x, sourceCoords.y, 50, 50, 90);
     drawTracer(sourceCoords.x, sourceCoords.y, destCoords.x, destCoords.y, 500);
 
     if (cookieData != null) {

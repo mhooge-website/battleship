@@ -30,6 +30,6 @@ function drawMuzzle(x, y, w, h, angle) {
     let img = document.getElementById("muzzle-flash");
     img.width = w;
     img.height = h;
-    img.style.transform = "rotate(" + angle + "deg) translateY(-100%)";
+    //img.style.transform = "rotate(" + angle + "deg) translateY(-100%)";
     drawImage(img, x, y);
 }
