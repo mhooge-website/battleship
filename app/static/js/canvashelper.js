@@ -71,6 +71,10 @@ function fillPath(xs, ys) {
     drawCtx.fill();
 }
 
+function drawImage(img, x, y) {
+    drawCtx.drawImage(img, x, y);
+}
+
 function eraseAll(canvas) {
     let fill = drawCtx.fillStyle;
     let bgColor = canvas.style.backgroundColor;

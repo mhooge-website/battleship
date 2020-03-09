@@ -26,6 +26,10 @@ function drawTracer(x1, y1, x2, y2, duration) {
     }, timeStep);
 }
 
-function drawMuzzle(x, y, size) {
-
+function drawMuzzle(x, y, w, h, angle) {
+    let img = document.getElementById("muzzle-flash");
+    img.width = w;
+    img.height = h;
+    img.style.transform = "rotate(" + angle + "deg) translateY(-100%)";
+    drawImage(img, x, y);
 }

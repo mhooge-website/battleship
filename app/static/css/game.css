@@ -12,6 +12,10 @@
     pointer-events: none;
 }
 
+#muzzle-flash {
+    display: none;
+}
+
 #game-boards-wrapper {
     width: 800px;
     max-width: 95vw;
