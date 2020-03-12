@@ -71,18 +71,21 @@ function fillPath(xs, ys) {
     drawCtx.fill();
 }
 
-function drawImage(img, x, y) {
-    drawCtx.drawImage(img, x, y);
+function drawImage(img, x, y, w, h, cx=null, cy=null, rotation=null) {
+    if (rotation != null) {
+        drawCtx.setTransform(1, 0, 0, 1, x, y); // sets scale and origin
+        drawCtx.rotate(rotation);
+    }
+    drawCtx.drawImage(img, cx, cy, w, h);
+    drawCtx.setTransform(1,0,0,1,0,0);
+}
+
+function eraseRect(x, y, w, h) {
+    drawCtx.clearRect(x, y, w, h);
 }
 
 function eraseAll(canvas) {
-    let fill = drawCtx.fillStyle;
-    let bgColor = canvas.style.backgroundColor;
-    if (bgColor == "")
-        bgColor = window.getComputedStyle(canvas, null).backgroundColor;
-    drawCtx.fillStyle = bgColor;
-    drawCtx.fillRect(0, 0, canvas.width, canvas.height);
-    drawCtx.fillStyle = fill;
+    eraseRect(0, 0, canvas.width, canvas.height);
 }
 
 function setHelperContext(ctx) {

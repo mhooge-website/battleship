@@ -111,6 +111,7 @@ function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
         selectedBtn.item(0).classList.remove("selected-grid");
 
     if (coords != null) {
+        animateMove(coords, owner == turn);
         let buttons = affectedBoard.getElementsByTagName("button");
         for (let i = 0; i < buttons.length; i++) {
             let btn = buttons.item(i);
@@ -158,18 +159,41 @@ function getRandomActiveShip() {
     }
 }
 
+function angleBetween(p1, p2) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+}
+
+function animateMove(destCoords, self) {
+    
+}
+
 function makeMove() {
     let selected = document.getElementsByClassName("selected-grid").item(0);
     let cookieData = JSON.parse(getCookieVal("battleship"));
     let ship = getRandomActiveShip();
-    let sourceCoords = getAbsoluteCoords(Number.parseInt(ship.dataset["x"]), Number.parseInt(ship.dataset["y"]), true);
-    let destCoords = getAbsoluteCoords(Number.parseInt(selected.dataset["x"]), Number.parseInt(selected.dataset["y"]), false);
-    drawMuzzle(sourceCoords.x, sourceCoords.y, 50, 50, 90);
+    let targetX = Number.parseInt(selected.dataset["x"]);
+    let targetY = Number.parseInt(selected.dataset["y"])
+    let sourceX = Number.parseInt(ship.dataset["x"])
+    let sourceY = Number.parseInt(ship.dataset["y"])
+    let sourceCoords = getAbsoluteCoords(sourceX, sourceY, true);
+    let destCoords = getAbsoluteCoords(targetX, targetY, false);
+    let angle = angleBetween(sourceCoords, destCoords) + (Math.PI/2);
+    let muzHeight = 80;
+    let muzWidth = (muzHeight * 0.44).toFixed(0);
+    drawMuzzle(sourceCoords.x, sourceCoords.y, muzWidth, muzHeight, angle);
     drawTracer(sourceCoords.x, sourceCoords.y, destCoords.x, destCoords.y, 500);
+    let explHeight = 60;
+    let explWidth = explHeight;
+    setTimeout(function() {
+        if (targetX % 2 == 0 && targetY % 2 == 0)
+            drawHit(destCoords.x, destCoords.y, explWidth, explHeight, 0);
+        else
+            drawMiss(destCoords.x, destCoords.y, explWidth, explHeight, 0);
+    }, 500);
 
     if (cookieData != null) {
-        cookieData["x"] = Number.parseInt(selected.dataset["x"]);
-        cookieData["y"] = Number.parseInt(selected.dataset["y"]);
+        cookieData["x"] = targetX;
+        cookieData["y"] = targetY;
         socketSend("player_move", JSON.stringify(cookieData));
     }
 }
