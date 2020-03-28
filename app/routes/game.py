@@ -9,7 +9,7 @@ game_page = Blueprint("game", __name__, template_folder="templates")
 def create_vs_ai():
     grid_data = [[(y, [(x, "") for x in range(10)]) for y in range(10)],
                  [(y, [(x, "") for x in range(10)]) for y in range(10)]]
-    return render_template("game.html", p1_ready=False, p2_ready=False, turn=0,
+    return render_template("game.html", p1_ready=False, p2_ready=True, turn=0,
                            status="setup", grid_data=grid_data, game_type="pvai")
 
 @game_page.route('/<lobby_id>', methods=['GET'])
@@ -33,7 +33,7 @@ def join_game(lobby_id):
         grid_data[0][3][1][4] = (4, "placed-ship ship-patrol")
         return render_template("game.html", p1_ready=True, p2_ready=True,
                                turn=1, status="underway",
-                               grid_data=grid_data, game_type="pvp")
+                               grid_data=grid_data, game_type="pvai")
 
     lobby_data = database.get_lobby_data(lobby_id)
 
@@ -61,22 +61,24 @@ def join_game(lobby_id):
             grid_data[player][shot_y][1][shot_x] = (shot_x, val)
 
         for ship_x, ship_y, ship_owner, ship_id, sunk in ship_data:
+            ship_id = "ship-" + ship_id.split("_")[1]
             shot_at_opp = shots_self[ship_y][ship_x]
             shot_at_self = shots_opp[ship_y][ship_x]
             if ship_owner == owner:
                 if sunk:
-                    grid_data[0][ship_y][1][ship_x] = (ship_x, "sunk-ship")
+                    grid_data[0][ship_y][1][ship_x] = (ship_x, "sunk-ship " + ship_id)
                 elif shot_at_self:
-                    grid_data[0][ship_y][1][ship_x] = (ship_x, "hit-ship")
+                    grid_data[0][ship_y][1][ship_x] = (ship_x, "hit-ship " + ship_id)
                 else:
                     grid_data[0][ship_y][1][ship_x] = (ship_x, "placed-ship " + ship_id)
             else:
+                show_ship = " " + ship_id if lobby_data[0][2] == "ended" else ""
                 if sunk:
-                    grid_data[1][ship_y][1][ship_x] = (ship_x, "sunk-ship")
+                    grid_data[1][ship_y][1][ship_x] = (ship_x, "sunk-ship" + show_ship)
                 elif shot_at_opp:
-                    grid_data[1][ship_y][1][ship_x] = (ship_x, "hit-ship")
+                    grid_data[1][ship_y][1][ship_x] = (ship_x, "hit-ship" + show_ship)
                 elif lobby_data[0][2] == "ended": # If game is over, we show the enemy board.
-                    grid_data[1][ship_y][1][ship_x] = (ship_x, "placed-ship " + ship_id)
+                    grid_data[1][ship_y][1][ship_x] = (ship_x, "placed-ship" + show_ship)
 
         self_ready = game_data[2 - owner] == 1
         other_ready = game_data[owner+1] == 1

@@ -79,6 +79,13 @@ function getButton(x, y, ownBoard) {
     return null;
 }
 
+function isHit(x, y, ownBoard) {
+    let btn = getButton(x, y, ownBoard);
+    return btn.classList.contains("hit-ship")
+        || btn.classList.contains("shot-missed")
+        || btn.classList.contains("sunk-ship");
+}
+
 function getAbsoluteCoords(x, y, ownBoard) {
     let btnName = ownBoard ? "grid-button-self" : "grid-button-opp";
     let boardName = ownBoard ? "game-own-board" : "game-enemy-board";
@@ -89,6 +96,20 @@ function getAbsoluteCoords(x, y, ownBoard) {
     let screenX = board.getBoundingClientRect().x + (buttonWidth/2) + (buttonWidth * x);
     let screenY = board.getBoundingClientRect().y + (buttonHeight/2) + (buttonHeight * y);
     return {x: screenX, y: screenY};
+}
+
+function checkForGameOver(data, owner) {
+    if (data["winner"] != -1) {
+        let oppShips = owner == 1 ? data["opp_ships"] : data["owner_ships"];
+        if (data["winner"] == owner) {
+            gameOver(true, oppShips); // We won!
+        }
+        else {
+            gameOver(false, oppShips);
+        }
+        return true;
+    }
+    return false;
 }
 
 function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
@@ -111,8 +132,8 @@ function swapTurns(turn, owner, coords=null, hit=false, sunkCoords=[]) {
         selectedBtn.item(0).classList.remove("selected-grid");
 
     if (coords != null) {
-        animateMove(coords, owner == turn);
         let buttons = affectedBoard.getElementsByTagName("button");
+        animateMove(coords, owner == turn, hit, sunkCoords);
         for (let i = 0; i < buttons.length; i++) {
             let btn = buttons.item(i);
             if (Number.parseInt(btn.dataset["x"]) == coords.x &&
@@ -146,15 +167,15 @@ function shuffle(arr) {
     }
 }
 
-function getRandomActiveShip() {
+function getAttackingShip() {
     let buttons = Array.prototype.slice.call(document.getElementsByClassName("grid-button-self"));
     shuffle(buttons);
     for (let i = 0; i < buttons.length; i++) {
         let btn = buttons[i];
         if (btn.classList.contains("placed-ship") &&
-            !btn.classList.contains("hit-ship") &&
-            !btn.classList.contains("sunk-ship")) {
-            return btn;
+                !btn.classList.contains("hit-ship") &&
+                !btn.classList.contains("sunk-ship")) {
+            return getAbsoluteCoords(Number.parseInt(btn.dataset["x"]), Number.parseInt(btn.dataset["y"]), true);
         }
     }
 }
@@ -163,44 +184,71 @@ function angleBetween(p1, p2) {
     return Math.atan2(p2.y - p1.y, p2.x - p1.x);
 }
 
-function animateMove(destCoords, self) {
-    
+function midPointOfShip(coords) {
+    let minX = 100, maxX = 0;
+    let minY = 100, maxY = 0;
+    for (let i = 0; i < coords.length; i++) {
+        let x = coords[i][0];
+        let y = coords[i][1];
+        if (x < minX) {
+            minX = x;
+        }
+        if (x > maxX) {
+            maxX = x;
+        }
+        if (y < minY) {
+            minY = y;
+        }
+        if (y > maxY) {
+            maxY = y;
+        }
+    }
+    return { x: ((minX + maxX)/2).toFixed(0), y: ((minY + maxY)/2).toFixed(0) };
+}
+
+function animateMove(coords, self, hit, sunkCoords) {
+    let destCoords = getAbsoluteCoords(coords.x, coords.y, self);
+    if (!self) {
+        let sourceCoords = getAttackingShip();
+        let angle = angleBetween(sourceCoords, destCoords) + (Math.PI/2);
+        let muzHeight = 80;
+        let muzWidth = (muzHeight * 0.44).toFixed(0);
+        drawMuzzle(sourceCoords.x, sourceCoords.y, muzWidth, muzHeight, angle);
+        drawTracer(sourceCoords.x, sourceCoords.y, destCoords.x, destCoords.y, 500);
+    }
+    let explHeight = 60;
+    let explWidth = explHeight;
+    setTimeout(function() {
+        if (hit) {
+            let hitCoords = destCoords;
+            if (sunkCoords.length > 0) {
+                let midPoint = midPointOfShip(sunkCoords);
+                hitCoords = getAbsoluteCoords(midPoint.x, midPoint.y, self)
+                explHeight = 120;
+                explWidth = explHeight;
+            }
+            drawHit(hitCoords.x, hitCoords.y, explWidth, explHeight, 0);
+        }
+        else
+            drawMiss(destCoords.x, destCoords.y, explWidth+10, explHeight+10, 0);
+    }, 500);
 }
 
 function makeMove() {
     let selected = document.getElementsByClassName("selected-grid").item(0);
     let cookieData = JSON.parse(getCookieVal("battleship"));
-    let ship = getRandomActiveShip();
-    let targetX = Number.parseInt(selected.dataset["x"]);
-    let targetY = Number.parseInt(selected.dataset["y"])
-    let sourceX = Number.parseInt(ship.dataset["x"])
-    let sourceY = Number.parseInt(ship.dataset["y"])
-    let sourceCoords = getAbsoluteCoords(sourceX, sourceY, true);
-    let destCoords = getAbsoluteCoords(targetX, targetY, false);
-    let angle = angleBetween(sourceCoords, destCoords) + (Math.PI/2);
-    let muzHeight = 80;
-    let muzWidth = (muzHeight * 0.44).toFixed(0);
-    drawMuzzle(sourceCoords.x, sourceCoords.y, muzWidth, muzHeight, angle);
-    drawTracer(sourceCoords.x, sourceCoords.y, destCoords.x, destCoords.y, 500);
-    let explHeight = 60;
-    let explWidth = explHeight;
-    setTimeout(function() {
-        if (targetX % 2 == 0 && targetY % 2 == 0)
-            drawHit(destCoords.x, destCoords.y, explWidth, explHeight, 0);
-        else
-            drawMiss(destCoords.x, destCoords.y, explWidth, explHeight, 0);
-    }, 500);
 
     if (cookieData != null) {
-        cookieData["x"] = targetX;
-        cookieData["y"] = targetY;
+        cookieData["x"] = Number.parseInt(selected.dataset["x"]);
+        cookieData["y"] = Number.parseInt(selected.dataset["y"]);
         socketSend("player_move", JSON.stringify(cookieData));
     }
 }
 
 function setButtonImg(shipId, ownBoard) {
     let btnName = ownBoard ? "grid-button-self" : "grid-button-opp";
-    let buttons = document.getElementsByClassName(btnName + " placed-ship " + shipId);
+    let buttons = document.getElementsByClassName(btnName + " " + shipId);
+    if (buttons.length == 0) return;
     let horizontal = (Number.parseInt(buttons.item(0).dataset["x"]) !=
                       Number.parseInt(buttons.item(1).dataset["x"]))
     let alignStr = horizontal ? "horizontal" : "vertical";
@@ -270,6 +318,7 @@ function initSetup() {
                 }
                 let buttons = document.getElementsByClassName(btn.dataset["ship_id"]);
                 let copyArr = [];
+                let shipId = btn.dataset["ship_id"];
                 for (let i = 0; i < buttons.length; i++) {
                     let affectedBtn = buttons.item(i);
                     affectedBtn.classList.remove("placed-ship");
@@ -279,7 +328,7 @@ function initSetup() {
                     copyArr.push(affectedBtn);
                 }
                 for (let i = 0; i < copyArr.length; i++) {
-                    copyArr[i].classList.remove(btn.dataset["ship_id"]);
+                    copyArr[i].classList.remove(shipId);
                 }
             }
             else if (selectedShip.length == 1) {
@@ -325,7 +374,7 @@ function initSetup() {
                         startBtn.classList.remove("selected-grid");
                         selectedShip.disabled = true;
                         selectedShip.classList.remove("selected-ship");
-                        
+
                         setButtonImg(selectedShip.dataset["ship_id"], true);
                         if (allShipsPlaced()) {
                             document.getElementById("player-action-btn").disabled = false;
@@ -350,6 +399,7 @@ function initGame() {
     let shipIds = ["ship-patrol", "ship-cruiser", "ship-battleship", "ship-submarine", "ship-aircraft"];
     for (let i = 0; i < shipIds.length; i++) {
         setButtonImg(shipIds[i], true);
+        setButtonImg(shipIds[i], false);
     }
     for (let i = 0; i < oppGridBtns.length; i++) {
         let btn = oppGridBtns.item(i);
@@ -377,8 +427,8 @@ function gameOver(winner, enemyShips) {
             btn.classList.add("placed-ship");
         }
     }
-    disableBoard("game-own-board", true);
-    disableBoard("game-enemy-board", true);
+    disableBoard(document.getElementById("game-own-board"), true);
+    disableBoard(document.getElementById("game-enemy-board"), true);
     let modal = document.getElementById("game-over-modal");
     let headerName = "game-over-header-" + (winner ? "won" : "lost");
     let header = document.getElementById(headerName);
@@ -392,6 +442,14 @@ function gameOver(winner, enemyShips) {
     actionBtn.onclick = function() {
         window.location.href = getBaseURL();
     }
+    let winnerStatusId = winner ? "status-self" : "status-opponent";
+    let loserStatusId = winner ? "status-opponent" : "status-self";
+    let winnerStatus = document.getElementById(winnerStatusId);
+    let loserStatus = document.getElementById(loserStatusId);
+    winnerStatus.className = "player-ready";
+    loserStatus.className = "player-waiting";
+    winnerStatus.textContent = "Winner!";
+    loserStatus.textContent = "Loser!";
 }
 
 function closeGameOverModal() {
@@ -407,15 +465,7 @@ socket.on("move_made", function(jsonData) {
     let hitCoords = {x: data["x"], y: data["y"]};
     let owner = JSON.parse(getCookieVal("battleship")).owner;
     swapTurns(data["turn"], owner, hitCoords, data["hit"], data["sunk"]);
-    if (data["winner"] != -1) {
-        let oppShips = owner == 1 ? data["opp_ships"] : data["owner_ships"];
-        if (data["winner"] == owner) {
-            gameOver(true, oppShips); // We won!
-        }
-        else {
-            gameOver(false, oppShips);
-        }
-    }
+    checkForGameOver(data, owner);
 });
 socket.on("start_game", function(turn) {
     document.getElementById("status-self").classList.add("player-hide");

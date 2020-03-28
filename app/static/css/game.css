@@ -82,12 +82,12 @@
     margin-top: 2px;
 }
 
-.grid-row:first-of-type {
+.grid-row.row-first {
     border-top: black 2px solid;
     margin-top: 0;
 }
 
-.grid-row:last-of-type {
+.grid-row.row-last {
     border-bottom: black 2px solid;
 }
 
@@ -109,6 +109,7 @@
     height: 30px;
     max-width: 30px;
     max-height: 30px;
+    background-origin: border-box;
 }
 
 #status-opponent, #status-self {
@@ -158,7 +159,7 @@
 }
 
 .grid-button-self.shot-missed {
-    background-color: rgb(179, 179, 179) !important;
+    background-color: rgb(91, 91, 91) !important;
 }
 
 .grid-button-opp.shot-missed {

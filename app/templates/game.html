@@ -31,7 +31,7 @@
     <div id="game-boards-wrapper">
         <div id="game-own-board" class="game-board {% if status != 'setup' %}board-disabled{% endif %}">
             {% for y, row in grid_data[0] %}
-                <div class="grid-row">
+                <div class="grid-row {% if loop.first %}row-first{% elif loop.last %}row-last{% endif %}">
                 {% for x, grid in row %}
                     <button class="grid-button-self {{ grid }}" data-x="{{ x }}" data-y="{{ y }}">
                         
@@ -43,6 +43,10 @@
                 <p id="status-self" class="player-{% if p1_ready %}ready{% else %}waiting{% endif %}">
                     {% if not p1_ready %}Not{% endif %} Ready
                 </p>
+            {% elif status == 'ended' %}
+                <p id="status-self" class="player-{% if not turn %}ready{% else %}waiting{% endif %}">
+                    {% if not turn %}Winner!{% else %}Loser!{% endif %}
+                </p>
             {% else %}
                 <p id="status-self" class="player-hide">
                     Fire at Will!
@@ -51,7 +55,7 @@
         </div>
         <div id="game-enemy-board" class="game-board {% if status in ('setup', 'ended') or not turn %}board-disabled{% endif %}">
             {% for y, row in grid_data[1] %}
-                <div class="grid-row">
+                <div class="grid-row {% if loop.first %}row-first{% elif loop.last %}row-last{% endif %}">
                 {% for x, grid in row %}
                     <button class="grid-button-opp {{ grid }}" data-x="{{ x }}" data-y="{{ y }}">
                         
@@ -64,11 +68,13 @@
                     {% if not p2_ready %}Not{% endif %} Ready
                 </p>
             {% else %}
-                <p id="status-opponent" class="player-turn">
-                    {% if turn %}
-                    Fire at Will!
+                <p id="status-opponent" class="player-{% if status == 'underway' %}turn{% elif turn %}ready{% else %}waiting{% endif %}">
+                    {% if status == 'ended' %}
+                        {% if turn %}Winner!{% else %}Loser!{% endif %}
+                    {% elif turn %}
+                        Fire at Will!
                     {% else %} 
-                    Waiting for Move
+                        Waiting for Move
                     {% endif %}
                 </p>
             {% endif %}
@@ -106,11 +112,11 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/animate.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% if game_type == 'pvp' %}
-<script type="text/javascript" src="{{ url_for('static', filename='js/ai.js') }}"></script>
 <script>
     socket.emit("player_joined", getCookieVal("battleship"));
 </script>
 {% else %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/ai.js') }}"></script>
 <script>
     socket.emit("ai_init", "whew");
 </script>

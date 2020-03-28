@@ -6,7 +6,6 @@ from app import shared
 search_page = Blueprint("search", __name__, template_folder="templates")
 
 @search_page.route('/')
-@search_page.route('/index')
 def search_game():
     lobbies = database.get_public_lobbies()
     active_lobby = None

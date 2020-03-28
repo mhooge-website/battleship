@@ -1,5 +1,5 @@
 from flask_socketio import SocketIO
-from flask import Flask
+from flask import Flask, url_for
 from flask_cors import CORS
 from logging.config import dictConfig
 from app import database
@@ -30,7 +30,7 @@ def create_app():
     web_app.register_blueprint(search.search_page, url_prefix=root + "/search")
     web_app.config['TESTING'] = True
     web_app.config["DATABASE"] = "./battleship.db"
-    web_app.secret_key = "guyhtgsytggg23rteg6221gdgadaw"
+    web_app.secret_key = open("app/static/secret.txt").readline()
     with web_app.app_context():
         database.init_db()
 

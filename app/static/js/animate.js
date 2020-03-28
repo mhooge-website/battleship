@@ -31,7 +31,7 @@ function drawTracer(x1, y1, x2, y2, duration) {
     setFillColor("white");
     setLineWidth(2);
     let intervalId = setInterval(function() {
-        eraseRect(x-6, y-6, 12, 12)
+        eraseRect(x-8, y-8, 16, 16)
         x += distStepX;
         y += distStepY
         if (i % dotFraction != 0) {
@@ -47,8 +47,7 @@ function drawTracer(x1, y1, x2, y2, duration) {
 function drawSprite(x, y, w, h, angle, delay, images) {
     let frames = images.length;
     function draw(i) {
-        let eraseX = x < window.innerWidth/2 ? 0 : window.innerWidth/2;
-        eraseRect(eraseX, 0, window.innerWidth/2, window.innerHeight);
+        eraseRect(x-(w/2)-6, y-(h/2)-6, w+12, h+12);
         if (i == frames) return;
         let img = images[i];
         drawImage(img, x, y, w, h, -w/2, -h/2, angle);

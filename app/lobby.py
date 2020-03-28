@@ -53,12 +53,12 @@ def handle_join(lobby_id, owner):
 def handle_lobby_full(lobby_id):
     current_app.logger.info("Lobby is full: " + lobby_id)
     change_setting(lobby_id, "status", "ready")
-    handle_join(lobby_id, 0)
     join_room(lobby_id)
     join_room(shared.get_room(lobby_id, 0))
     encrypted = shared.encrypt_lobby_id(lobby_id, 0)
     json_data = json.dumps({"id": lobby_id, "hash": encrypted})
     socket_io.emit("lobby_ready_opp", json_data, room=shared.get_room(lobby_id, 0))
+    handle_join(lobby_id, 0)
     socket_io.emit("lobby_ready_owner", json_data, room=shared.get_room(lobby_id, 1))
 
 @socket_io.on("setting_changed")
